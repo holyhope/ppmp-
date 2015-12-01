@@ -28,5 +28,11 @@ public interface Library extends Remote {
 	Book[] searchByTitle(String title) throws RemoteException;
 
 	Book[] searchByAuthor(String author) throws RemoteException;
+	
+	boolean isBuyable(Book book) throws RemoteException;
+	
+	boolean buyBook(Book book, User user) throws RemoteException;
+	
+	double getCost(Book book) throws RemoteException;
 
 }

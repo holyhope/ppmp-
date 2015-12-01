@@ -10,7 +10,7 @@ public class LibraryServer {
 		try {
 			Library library = new LibraryImpl();
 			for(int i = 0; i < 20; i++){
-				Book b = new BookImpl((i+1),(i+1),  "Titre " + i, "Auteur " + i, "Resume " + i, "Poche", "Editeur " + i,i*10, 2015, 12, (i + 1));
+				Book b = new BookImpl((i+1),(i+1),  "Titre " + i, "Auteur " + i, "Resume " + i, "Editeur " + i,i*10., 2015, 12, (i + 1));
 				library.addBook(b, new UserImpl("Maxime", "maxime@wanadoo.fr", "teacher"));
 			}
 			
