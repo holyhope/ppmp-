@@ -1,0 +1,82 @@
+package test.fr.mlv.school;
+
+import static org.junit.Assert.*;
+
+import java.rmi.RemoteException;
+
+import org.junit.Test;
+
+import fr.mlv.school.UserImpl;
+import fr.mlv.school.UsersImpl;
+
+public class UsersTest {
+	@Test
+	public void testFindByUsername() throws RemoteException {
+		UsersImpl usersImpl = new UsersImpl();
+		UserImpl user = new UserImpl("administrator", "admin@upem.fr", "admin");
+		usersImpl.register(user, "password");
+		assertNull(usersImpl.findByUsername("badusername"));
+		try {
+			usersImpl.findByUsername(null);
+			fail("Null username should not be allowed");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
+			usersImpl.findByUsername("");
+			fail("Empty username should not be allowed");
+		} catch (IllegalArgumentException e) {
+		}
+		assertEquals(user, usersImpl.findByUsername("administrator"));
+	}
+
+	@Test
+	public void testFindByEmail() throws RemoteException {
+		UsersImpl usersImpl = new UsersImpl();
+		UserImpl user = new UserImpl("administrator", "admin@upem.fr", "admin");
+		usersImpl.register(user, "password");
+		assertNull(usersImpl.findByEmail("bad.email@upem.fr"));
+		try {
+			usersImpl.findByEmail(null);
+			fail("Null email should not be allowed");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
+			usersImpl.findByEmail("");
+			fail("Empty email should not be allowed");
+		} catch (IllegalArgumentException e) {
+		}
+		assertEquals(user, usersImpl.findByEmail("admin@upem.fr"));
+	}
+
+	@Test
+	public void testAuthenticate() throws RemoteException {
+		UsersImpl usersImpl = new UsersImpl();
+		UserImpl user = new UserImpl("administrator", "admin@upem.fr", "admin");
+		usersImpl.register(user, "password");
+		assertFalse(usersImpl.authenticate(user, "badpassword"));
+		assertTrue(usersImpl.authenticate(user, "password"));
+		assertTrue(usersImpl.authenticate(user, "password"));
+	}
+
+	@Test
+	public void testRegister() throws RemoteException {
+		UsersImpl usersImpl = new UsersImpl();
+		UserImpl user = new UserImpl("administrator", "admin@upem.fr", "admin");
+		assertTrue(usersImpl.register(user, "password"));
+		try {
+			usersImpl.register(null, "password");
+			fail("Null user should not be allowed");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
+			usersImpl.register(user, null);
+			fail("Null password should not be allowed");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
+			usersImpl.register(user, "");
+			fail("Empty password should not be allowed");
+		} catch (IllegalArgumentException e) {
+		}
+	}
+}
