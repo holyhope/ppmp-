@@ -20,11 +20,19 @@ public interface Library extends Remote {
 	boolean subscribeToWaitingList(Book book, User user) throws RemoteException;
 
 	boolean unsubscribeToWaitingList(Book book, User user) throws RemoteException;
+	
+	Book searchByBarCode(long barCode) throws RemoteException;
 
-	Book searchByISBN(long ISBN) throws RemoteException;
+	Book[] searchByISBN(long ISBN) throws RemoteException;
 
 	Book[] searchByTitle(String title) throws RemoteException;
 
 	Book[] searchByAuthor(String author) throws RemoteException;
+	
+	boolean isBuyable(Book book) throws RemoteException;
+	
+	boolean buyBook(Book book, User user) throws RemoteException;
+	
+	double getCost(Book book) throws RemoteException;
 
 }
