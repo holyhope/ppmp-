@@ -2,7 +2,6 @@ package fr.mlv.school;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.Date;
 
 public interface Comment extends Remote {
 
@@ -12,6 +11,6 @@ public interface Comment extends Remote {
 
 	String getContent() throws RemoteException;
 
-	Date getDate() throws RemoteException;
+	long getTime() throws RemoteException;
 
 }

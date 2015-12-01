@@ -17,25 +17,52 @@ public class BookImpl extends UnicastRemoteObject implements Book {
 	private final String			 title;
 	private final String			 author;
 	private final String			 summary;
-	private final String			 format;
 	private final Date				 date;
 	private final String			 publisher;
 	private final double			 cost;
 	private final ArrayList<Comment> comments		  = new ArrayList<>();
 
-	public BookImpl(long ISBN, long barCode, String title, String author, String summary, String format,
-			String publisher, double cost, int yearPublish, int monthPublish, int dayPublish) throws RemoteException {
+	public BookImpl(long ISBN, long barCode, String title, String author, String summary, String publisher, double cost,
+			int yearPublish, int monthPublish, int dayPublish) throws RemoteException {
+		if (ISBN <= 0) {
+			throw new IllegalArgumentException("ISBN is not valid");
+		}
 		this.ISBN = ISBN;
+
+		if (barCode <= 0) {
+			throw new IllegalArgumentException("barCode is not valid");
+		}
 		this.barCode = barCode;
+
+		if (title == null || title.length() == 0) {
+			throw new IllegalArgumentException("title is not valid");
+		}
 		this.title = title;
+
+		if (author == null || author.length() == 0) {
+			throw new IllegalArgumentException("author is not valid");
+		}
 		this.author = author;
+
+		if (summary == null) {
+			throw new IllegalArgumentException("summary is not valid");
+		}
 		this.summary = summary;
+
+		if (publisher == null || publisher.length() == 0) {
+			throw new IllegalArgumentException("publisher is not valid");
+		}
 		this.publisher = publisher;
-		this.format = format;
+
+		if (cost <= 0) {
+			throw new IllegalArgumentException("cost is not valid");
+		}
 		this.cost = cost;
+
 		Calendar myCal = Calendar.getInstance();
 		myCal.set(Calendar.YEAR, yearPublish);
-		myCal.set(Calendar.MONTH, monthPublish);
+		// Do not change: Months start with index 0
+		myCal.set(Calendar.MONTH, monthPublish - 1);
 		myCal.set(Calendar.DAY_OF_MONTH, dayPublish);
 		date = myCal.getTime();
 	}
@@ -60,10 +87,6 @@ public class BookImpl extends UnicastRemoteObject implements Book {
 		return summary;
 	}
 
-	public String getFormat() throws RemoteException {
-		return format;
-	}
-
 	public String getPublisher() throws RemoteException {
 		return publisher;
 	}
@@ -84,7 +107,7 @@ public class BookImpl extends UnicastRemoteObject implements Book {
 
 	public String toString() {
 		return "Book{ISBN : " + ISBN + ", BarCode : " + barCode + ", Title : " + title + ", Author : " + author
-				+ ", Summary : " + summary + ", Format : " + format + ", Publisher : " + publisher + ", Cost : " + cost
-				+ ", Date : " + date.toString() + "}";
+				+ ", Summary : " + summary + ", Publisher : " + publisher + ", Cost : " + cost + ", Date : "
+				+ date.toString() + "}";
 	}
 }

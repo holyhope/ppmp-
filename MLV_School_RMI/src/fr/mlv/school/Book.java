@@ -15,8 +15,6 @@ public interface Book extends Remote {
 
 	String getSummary() throws RemoteException;
 
-	String getFormat() throws RemoteException;
-
 	String getPublisher() throws RemoteException;
 
 	double getCost() throws RemoteException;
