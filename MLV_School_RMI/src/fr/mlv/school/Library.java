@@ -20,8 +20,10 @@ public interface Library extends Remote {
 	boolean subscribeToWaitingList(Book book, User user) throws RemoteException;
 
 	boolean unsubscribeToWaitingList(Book book, User user) throws RemoteException;
+	
+	Book searchByBarCode(long barCode) throws RemoteException;
 
-	Book searchByISBN(long ISBN) throws RemoteException;
+	Book[] searchByISBN(long ISBN) throws RemoteException;
 
 	Book[] searchByTitle(String title) throws RemoteException;
 

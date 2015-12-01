@@ -8,10 +8,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class LibraryImpl extends UnicastRemoteObject implements Library {
 	private static final long serialVersionUID = 1L;
-	
+
 	private final String name = "MLV-School";
 	private final ConcurrentHashMap<Long, Book> library = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<User, ArrayList<Book>> borrowers = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Book, User> borrowers = new ConcurrentHashMap<>();
 	private final ConcurrentHashMap<Book, ArrayBlockingQueue<User>> waitingList = new ConcurrentHashMap<>();
 
 	public LibraryImpl() throws RemoteException {
@@ -44,36 +44,28 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	}
 
 	public boolean isBookAvailable(Book book) throws RemoteException {
-		return book.isAvailable();
+		return borrowers.get(book) == null ? true : false;
 	}
 
 	public boolean getBook(Book book, User user) throws RemoteException {
-		if (book.isAvailable()) {
-			book.setNotAvailable();
-			ArrayList<Book> borrowerBooks = borrowers.getOrDefault(user, new ArrayList<Book>());
-			borrowerBooks.add(book);
-			borrowers.put(user, borrowerBooks);
+		if (borrowers.get(book) == null) {
+			borrowers.put(book, user);
 			return true;
 		}
 		return false;
 	}
 
 	public boolean restoreBook(Book book, User user) throws RemoteException {
-		book.setAvailable();
-		ArrayList<Book> borrowerBooks = borrowers.get(user);
-		if (borrowerBooks != null) {
-			if (borrowerBooks.remove(book)) {
-				borrowers.put(user, borrowerBooks);
-				return true;
-			}
+		if(borrowers.remove(book) == null){
+			return false;
 		}
-		return false;
+		return true;
+
 	}
 
 	public boolean subscribeToWaitingList(Book book, User user) throws RemoteException {
-		if (!book.isAvailable()) {
-			ArrayBlockingQueue<User> usersWaiting = waitingList.getOrDefault(book,
-					new ArrayBlockingQueue<User>(3));
+		if (borrowers.get(book) != null) {
+			ArrayBlockingQueue<User> usersWaiting = waitingList.getOrDefault(book, new ArrayBlockingQueue<User>(3));
 			try {
 				usersWaiting.add(user);
 			} catch (IllegalStateException ise) {
@@ -95,9 +87,21 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		}
 		return false;
 	}
+	
+	public Book searchByBarCode(long barCode) throws RemoteException {
+		return library.get(barCode);
+	}
 
-	public Book searchByISBN(long ISBN) throws RemoteException {
-		return library.get(ISBN);
+	public Book[] searchByISBN(long ISBN) throws RemoteException {
+		ArrayList<Book> books = new ArrayList<>();
+		for (Book book : library.values()) {
+			if (book.getISBN() == ISBN) {
+				books.add(book);
+			}
+		}
+		Book[] booksArray = new Book[books.size()];
+		booksArray = books.toArray(booksArray);
+		return booksArray;
 	}
 
 	public Book[] searchByTitle(String title) throws RemoteException {
@@ -123,4 +127,5 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		booksArray = books.toArray(booksArray);
 		return booksArray;
 	}
+
 }
