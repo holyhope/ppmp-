@@ -9,21 +9,22 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class BookImpl extends UnicastRemoteObject implements Book {
-	private static final long serialVersionUID = 1L;
-	
-	private long ISBN;
-	private long barCode;
-	private String title;
-	private String author;
-	private String summary;
-	private String format;
-	private Date date;
-	private String publisher;
-	private int cost;
-	private final ArrayList<Comment> comments = new ArrayList<>();
+	private static final long		 serialVersionUID = 1L;
 
-	public BookImpl(long ISBN, long barCode, String title, String author, String summary, String format, String publisher, int cost,
-			int yearPublish, int monthPublish, int dayPublish) throws RemoteException {
+	private final long				 barCode;
+
+	private final long				 ISBN;
+	private final String			 title;
+	private final String			 author;
+	private final String			 summary;
+	private final String			 format;
+	private final Date				 date;
+	private final String			 publisher;
+	private final double			 cost;
+	private final ArrayList<Comment> comments		  = new ArrayList<>();
+
+	public BookImpl(long ISBN, long barCode, String title, String author, String summary, String format,
+			String publisher, double cost, int yearPublish, int monthPublish, int dayPublish) throws RemoteException {
 		this.ISBN = ISBN;
 		this.barCode = barCode;
 		this.title = title;
@@ -42,7 +43,7 @@ public class BookImpl extends UnicastRemoteObject implements Book {
 	public long getISBN() throws RemoteException {
 		return ISBN;
 	}
-	
+
 	public long getBarCode() throws RemoteException {
 		return barCode;
 	}
@@ -66,8 +67,8 @@ public class BookImpl extends UnicastRemoteObject implements Book {
 	public String getPublisher() throws RemoteException {
 		return publisher;
 	}
-	
-	public int getCost() throws RemoteException {
+
+	public double getCost() throws RemoteException {
 		return cost;
 	}
 
@@ -80,16 +81,10 @@ public class BookImpl extends UnicastRemoteObject implements Book {
 		CommentImpl[] commentsArray = new CommentImpl[comments.size()];
 		return comments.toArray(commentsArray);
 	}
-	
-	public String toString(){
-		return "Book{ISBN : " + ISBN 
-				+ ", BarCode : " + barCode
-				+ ", Title : " + title 
-				+ ", Author : " + author 
-				+ ", Summary : " + summary 
-				+ ", Format : " + format 
-				+ ", Publisher : " + publisher 
-				+ ", Cost : " + cost 
-				+ ", Date : " + date.toString() + "}"; 
+
+	public String toString() {
+		return "Book{ISBN : " + ISBN + ", BarCode : " + barCode + ", Title : " + title + ", Author : " + author
+				+ ", Summary : " + summary + ", Format : " + format + ", Publisher : " + publisher + ", Cost : " + cost
+				+ ", Date : " + date.toString() + "}";
 	}
 }

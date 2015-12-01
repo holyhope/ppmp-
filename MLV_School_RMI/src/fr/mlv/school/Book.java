@@ -19,7 +19,7 @@ public interface Book extends Remote {
 
 	String getPublisher() throws RemoteException;
 
-	int getCost() throws RemoteException;
+	double getCost() throws RemoteException;
 
 	String getDate() throws RemoteException;
 
