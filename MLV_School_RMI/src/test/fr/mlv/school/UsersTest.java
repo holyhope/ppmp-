@@ -1,12 +1,15 @@
 package test.fr.mlv.school;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.rmi.RemoteException;
 
 import org.junit.Test;
 
-import fr.mlv.school.User;
 import fr.mlv.school.UserImpl;
 import fr.mlv.school.UsersImpl;
 

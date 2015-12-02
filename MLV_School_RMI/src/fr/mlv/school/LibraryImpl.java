@@ -9,14 +9,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class LibraryImpl extends UnicastRemoteObject implements Library {
-	private static final long serialVersionUID = 1L;
+	private static final long										serialVersionUID = 1L;
 
-	private final String name = "MLV-School";
-	private final ConcurrentHashMap<Long, Book> library = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<Book, User> borrowers = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<Book, ArrayBlockingQueue<User>> waitingList = new ConcurrentHashMap<>();
-	private final CopyOnWriteArrayList<History> histories = new CopyOnWriteArrayList<>();
-	private final ConcurrentHashMap<Long, Long> bookRegistered = new ConcurrentHashMap<>();
+	private final String											name			 = "MLV-School";
+	private final UsersImpl											users			 = new UsersImpl();
+	private final ConcurrentHashMap<Long, Book>						library			 = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Book, User>						borrowers		 = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Book, ArrayBlockingQueue<User>>	waitingList		 = new ConcurrentHashMap<>();
+	private final CopyOnWriteArrayList<History>						histories		 = new CopyOnWriteArrayList<>();
+	private final ConcurrentHashMap<Long, Long>						bookRegistered	 = new ConcurrentHashMap<>();
 
 	public LibraryImpl() throws RemoteException {
 	}
@@ -26,7 +27,7 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	}
 
 	public boolean addBook(Book book, User user) throws RemoteException {
-		if (user.getRole().equals("teacher")) {
+		if (users.userCan(user, Permission.ADD_BOOK)) {
 			bookRegistered.put(book.getBarCode(), System.currentTimeMillis());
 			library.put(book.getISBN(), book);
 			return true;
@@ -34,14 +35,8 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		return false;
 	}
 
-	/*
-	 * public boolean deleteBook(long ISBN, User user) { if
-	 * (user.getRole().equals(Role.teacher)) { library.remove(ISBN); return
-	 * true; } return false; }
-	 */
-
 	public boolean deleteBook(Book book, User user) throws RemoteException {
-		if (user.getRole().equals("teacher")) {
+		if (users.userCan(user, Permission.REMOVE_BOOK)) {
 			library.remove(book.getISBN());
 			bookRegistered.remove(book.getBarCode());
 			return true;
@@ -161,8 +156,8 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		}
 		return false;
 	}
-	
-	public double getCost(Book book) throws RemoteException{
+
+	public double getCost(Book book) throws RemoteException {
 		return book.getCost();
 	}
 

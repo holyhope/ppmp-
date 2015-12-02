@@ -1,17 +1,22 @@
 package fr.mlv.school;
 
-import java.rmi.RemoteException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 
 public class UsersImpl implements Users {
-	private static final String					  DIGEST_METHOD	= "MD5";
-	private final ConcurrentHashMap<User, byte[]> users			= new ConcurrentHashMap<>();
+	private static final String											   DIGEST_METHOD = "MD5";
+
+	private final ConcurrentHashMap<User, byte[]>						   users		 = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Permission, CopyOnWriteArraySet<User>> permissions	 = new ConcurrentHashMap<>();
 
 	@Override
-	public User findByUsername(String username) throws RemoteException {
+	public User findByUsername(String username) {
 		if (username == null || username.isEmpty()) {
 			throw new IllegalArgumentException("username is not valid");
 		}
@@ -26,7 +31,7 @@ public class UsersImpl implements Users {
 	}
 
 	@Override
-	public User findByEmail(String email) throws RemoteException {
+	public User findByEmail(String email) {
 		if (email == null || email.isEmpty()) {
 			throw new IllegalArgumentException("email is not valid");
 		}
@@ -50,7 +55,7 @@ public class UsersImpl implements Users {
 	}
 
 	@Override
-	public boolean authenticate(User user, String password) throws RemoteException {
+	public boolean authenticate(User user, String password) {
 		if (user == null) {
 			throw new IllegalArgumentException("user is not valid");
 		}
@@ -78,7 +83,7 @@ public class UsersImpl implements Users {
 	}
 
 	@Override
-	public boolean register(User user, String password) throws RemoteException {
+	public boolean register(User user, String password) {
 		if (user == null) {
 			throw new IllegalArgumentException("user is not valid");
 		}
@@ -98,4 +103,77 @@ public class UsersImpl implements Users {
 		return true;
 	}
 
+	@Override
+	public boolean grantPermission(User user, Permission permission) {
+		if (user == null) {
+			throw new IllegalArgumentException("User is not valid");
+		}
+		if (permission == null) {
+			throw new IllegalArgumentException("Permission is not valid");
+		}
+
+		CopyOnWriteArraySet<User> permitedUsers = getOrCreatePermited(permission);
+
+		if (permitedUsers.contains(user)) {
+			return false;
+		}
+
+		return permitedUsers.add(user);
+	}
+
+	@Override
+	public boolean userCan(User user, Permission permission) {
+		if (user == null) {
+			throw new IllegalArgumentException("User is not valid");
+		}
+		if (permission == null) {
+			throw new IllegalArgumentException("Permission is not valid");
+		}
+
+		CopyOnWriteArraySet<User> permitedUsers = getOrCreatePermited(permission);
+
+		return permitedUsers.contains(user);
+	}
+
+	@Override
+	public boolean revokePermission(User user, Permission permission) {
+		if (user == null) {
+			throw new IllegalArgumentException("User is not valid");
+		}
+		if (permission == null) {
+			throw new IllegalArgumentException("Permission is not valid");
+		}
+
+		CopyOnWriteArraySet<User> permitedUsers = getOrCreatePermited(permission);
+
+		if (permitedUsers.contains(user)) {
+			return false;
+		}
+
+		return permitedUsers.remove(user);
+	}
+
+	@Override
+	public Set<User> getPermitedUsers(Permission permission) {
+		Set<User> users = new HashSet<>();
+		CopyOnWriteArraySet<User> permitedUsers = getOrCreatePermited(permission);
+
+		users.addAll(permitedUsers);
+
+		return users;
+	}
+
+	private CopyOnWriteArraySet<User> getOrCreatePermited(Permission permission) {
+		if (!permissions.containsKey(permission)) {
+			permissions.put(permission, new CopyOnWriteArraySet<>());
+		}
+
+		return permissions.get(permission);
+	}
+
+	@Override
+	public Set<Permission> getUserPermissions(User user) {
+		return permissions.entrySet().parallelStream().filter(e -> e.getValue().contains(user)).map(e -> e.getKey())
+				.collect(Collectors.toSet());
+	}
 }
