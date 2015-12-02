@@ -7,6 +7,7 @@ import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.awt.Button;
 import java.awt.Dimension;
 
 import javax.swing.JSplitPane;
@@ -102,9 +103,10 @@ public class BiblioGUI {
 		scrollPane.setBackground(new Color(218, 165, 32));
 		panelRight.add(scrollPane);
 		
-		Object data[][] = {{"Test","Test","Test","Test","Test","Test"}};
-		String headers[]= {"Isbn","Title","Author","Summary","Publisher","Format"};
+		Object data[][] = {{"Test","Test","Test","Test","Test","Test",""}};
+		String headers[]= {"Isbn","Title","Author","Summary","Publisher","Format","Ajouter"};
 		table = new JTable(data,headers);
+		//table.getColumn("Ajouter").setCellEditor(new ButtonEditor(new JCheckBox()));
 		scrollPane.setViewportView(table);
 		
 		JDesktopPane desktopPaneLeft = new JDesktopPane();
