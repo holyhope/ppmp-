@@ -6,6 +6,7 @@ import java.rmi.RemoteException;
 
 import org.junit.Test;
 
+import fr.mlv.school.User;
 import fr.mlv.school.UserImpl;
 import fr.mlv.school.UsersImpl;
 
@@ -56,6 +57,43 @@ public class UsersTest {
 		assertFalse(usersImpl.authenticate(user, "badpassword"));
 		assertTrue(usersImpl.authenticate(user, "password"));
 		assertTrue(usersImpl.authenticate(user, "password"));
+
+		try {
+			usersImpl.authenticate(null, "password");
+			fail("Null user should not be allowed");
+		} catch (IllegalArgumentException e) {
+		}
+
+		try {
+			usersImpl.authenticate(user, null);
+			fail("Null password should not be allowed");
+		} catch (IllegalArgumentException e) {
+		}
+
+		try {
+			usersImpl.authenticate(user, "");
+			fail("Empty password should not be allowed");
+		} catch (IllegalArgumentException e) {
+		}
+	}
+
+	@Test
+	public void testIsRegistered() throws RemoteException {
+		UsersImpl usersImpl = new UsersImpl();
+		UserImpl user1 = new UserImpl("administrator", "admin@upem.fr", "admin");
+		UserImpl user2 = new UserImpl("administrator", "admin@upem.fr", "admin");
+
+		assertFalse(usersImpl.isRegistered(user1));
+		assertTrue(usersImpl.register(user1, "password"));
+		assertTrue(usersImpl.isRegistered(user1));
+
+		assertFalse(usersImpl.isRegistered(user2));
+
+		try {
+			usersImpl.isRegistered(null);
+			fail("Null user should not be allowed");
+		} catch (IllegalArgumentException e) {
+		}
 	}
 
 	@Test
@@ -63,16 +101,19 @@ public class UsersTest {
 		UsersImpl usersImpl = new UsersImpl();
 		UserImpl user = new UserImpl("administrator", "admin@upem.fr", "admin");
 		assertTrue(usersImpl.register(user, "password"));
+
 		try {
 			usersImpl.register(null, "password");
 			fail("Null user should not be allowed");
 		} catch (IllegalArgumentException e) {
 		}
+
 		try {
 			usersImpl.register(user, null);
 			fail("Null password should not be allowed");
 		} catch (IllegalArgumentException e) {
 		}
+
 		try {
 			usersImpl.register(user, "");
 			fail("Empty password should not be allowed");

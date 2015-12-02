@@ -10,5 +10,7 @@ public interface Users extends Remote {
 
 	public boolean authenticate(User user, String password) throws RemoteException;
 
+	public boolean isRegistered(User user);
+
 	public boolean register(User user, String password) throws RemoteException;
 }

@@ -7,7 +7,8 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class UsersImpl implements Users {
-	private final ConcurrentHashMap<User, byte[]> users = new ConcurrentHashMap<>();
+	private static final String					  DIGEST_METHOD	= "MD5";
+	private final ConcurrentHashMap<User, byte[]> users			= new ConcurrentHashMap<>();
 
 	@Override
 	public User findByUsername(String username) throws RemoteException {
@@ -29,6 +30,7 @@ public class UsersImpl implements Users {
 		if (email == null || email.isEmpty()) {
 			throw new IllegalArgumentException("email is not valid");
 		}
+
 		return users.keySet().parallelStream().filter(u -> {
 			try {
 				return u.getEmail().equals(email);
@@ -40,18 +42,35 @@ public class UsersImpl implements Users {
 	}
 
 	@Override
-	public boolean authenticate(User user, String password) throws RemoteException {
-		if (user == null || !users.containsKey(user)) {
-			return false;
+	public boolean isRegistered(User user) {
+		if (user == null) {
+			throw new IllegalArgumentException("user is not valid");
 		}
+		return users.containsKey(user);
+	}
+
+	@Override
+	public boolean authenticate(User user, String password) throws RemoteException {
+		if (user == null) {
+			throw new IllegalArgumentException("user is not valid");
+		}
+		if (password == null || password.isEmpty()) {
+			throw new IllegalArgumentException("password is not valid");
+		}
+
 		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			byte[] thedigest = md.digest(password.getBytes());
+			byte[] thedigest = getDigest(password);
 			return Arrays.equals(users.get(user), thedigest);
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace(System.err);
 			return false;
 		}
+	}
+
+	private byte[] getDigest(String password) throws NoSuchAlgorithmException {
+		MessageDigest md = MessageDigest.getInstance(DIGEST_METHOD);
+		byte[] thedigest = md.digest(password.getBytes());
+		return thedigest;
 	}
 
 	private boolean isValidPassword(String password) {
@@ -70,8 +89,7 @@ public class UsersImpl implements Users {
 			throw new IllegalArgumentException("The user is already registered");
 		}
 		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			byte[] thedigest = md.digest(password.getBytes());
+			byte[] thedigest = getDigest(password);
 			users.put(user, thedigest);
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace(System.err);
