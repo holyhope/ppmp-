@@ -34,12 +34,12 @@ public class BookImpl extends UnicastRemoteObject implements Book {
 		}
 		this.barCode = barCode;
 
-		if (title == null || title.length() == 0) {
+		if (title == null || title.isEmpty()) {
 			throw new IllegalArgumentException("title is not valid");
 		}
 		this.title = title;
 
-		if (author == null || author.length() == 0) {
+		if (author == null || author.isEmpty()) {
 			throw new IllegalArgumentException("author is not valid");
 		}
 		this.author = author;
@@ -49,7 +49,7 @@ public class BookImpl extends UnicastRemoteObject implements Book {
 		}
 		this.summary = summary;
 
-		if (publisher == null || publisher.length() == 0) {
+		if (publisher == null || publisher.isEmpty()) {
 			throw new IllegalArgumentException("publisher is not valid");
 		}
 		this.publisher = publisher;
