@@ -114,6 +114,12 @@ public class biblio {
 		findBook.setColumns(10);
 
 		desktopPane.add(panel);
+		
+		JRadioButton rdbtnFindByTitle = new JRadioButton("Titre");
+		panel.add(rdbtnFindByTitle);
+		
+		JRadioButton rdbtnfindByAuthor = new JRadioButton("Author");
+		panel.add(rdbtnfindByAuthor);
 
 		Component horizontalStrut = Box.createHorizontalStrut(40);
 		panel.add(horizontalStrut);
@@ -128,14 +134,6 @@ public class biblio {
 		Label lblPanierValue = new Label("Value");
 		panel.add(lblPanierValue);
 		lblPanierValue.setAlignment(Label.RIGHT);
-		
-		JRadioButton rdbtnFindByTitle = new JRadioButton("Titre");
-		rdbtnFindByTitle.setBounds(6, 123, 141, 17);
-		desktopPane.add(rdbtnFindByTitle);
-		
-		JRadioButton rdbtnfindByAuthor = new JRadioButton("Author");
-		rdbtnfindByAuthor.setBounds(6, 146, 141, 17);
-		desktopPane.add(rdbtnfindByAuthor);
 		
 		JRadioButton rdbtnfindByIsbn = new JRadioButton("Isbn");
 		rdbtnfindByIsbn.setBounds(6, 165, 141, 17);
