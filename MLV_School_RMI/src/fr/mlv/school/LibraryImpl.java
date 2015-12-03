@@ -9,15 +9,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class LibraryImpl extends UnicastRemoteObject implements Library {
-	private static final long										serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-	private final String											name			 = "MLV-School";
-	private final UsersImpl											users			 = new UsersImpl();
-	private final ConcurrentHashMap<Long, Book>						library			 = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<Book, User>						borrowers		 = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<Book, ArrayBlockingQueue<User>>	waitingList		 = new ConcurrentHashMap<>();
-	private final CopyOnWriteArrayList<History>						histories		 = new CopyOnWriteArrayList<>();
-	private final ConcurrentHashMap<Long, Long>						bookRegistered	 = new ConcurrentHashMap<>();
+	private final String name = "MLV-School";
+	private final UsersImpl users = new UsersImpl();
+	private final ConcurrentHashMap<Long, Book> library = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Book, User> borrowers = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Book, ArrayBlockingQueue<User>> waitingList = new ConcurrentHashMap<>();
+	private final CopyOnWriteArrayList<History> histories = new CopyOnWriteArrayList<>();
+	private final ConcurrentHashMap<Long, Long> bookRegistered = new ConcurrentHashMap<>();
 
 	public LibraryImpl() throws RemoteException {
 	}
@@ -27,6 +27,10 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	}
 
 	public boolean addBook(Book book, User user) throws RemoteException {
+		if(book == null){
+			throw new IllegalArgumentException("Book is not Valid");
+		}
+		isValidUser(user);
 		if (users.userCan(user, Permission.ADD_BOOK)) {
 			bookRegistered.put(book.getBarCode(), System.currentTimeMillis());
 			library.put(book.getISBN(), book);
@@ -36,6 +40,8 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	}
 
 	public boolean deleteBook(Book book, User user) throws RemoteException {
+		isValidBook(book);
+		isValidUser(user);
 		if (users.userCan(user, Permission.REMOVE_BOOK)) {
 			library.remove(book.getISBN());
 			bookRegistered.remove(book.getBarCode());
@@ -44,29 +50,59 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		return false;
 	}
 
+	public boolean isValidBook(Book book) throws RemoteException{
+		if(book == null){
+			throw new IllegalArgumentException("Book is not Valid.");
+		}
+		if (!library.containsKey(book.getBarCode())) {
+			throw new IllegalArgumentException("This book doesn't exist in the library.");
+		}
+		return true;
+	}
+	
+	public boolean isValidUser(User user) throws RemoteException {
+		if(user == null){
+			throw new IllegalArgumentException("User is not Valid.");
+		}
+		if(!users.isRegistered(user)){
+			throw new IllegalArgumentException("This user isn't registered.");
+		}
+		return true;
+	}
+	
 	public boolean isBookAvailable(Book book) throws RemoteException {
+		isValidBook(book);
 		return borrowers.get(book) == null ? true : false;
 	}
 
 	public boolean getBook(Book book, User user) throws RemoteException {
-		if (borrowers.get(book) == null) {
-			histories.add(new History(book, user, 1));
-			borrowers.put(book, user);
-			return true;
-		}
+		isValidBook(book);
+		isValidUser(user);
+			if (borrowers.get(book) == null) {
+				histories.add(new History(book, user, 1));
+				borrowers.put(book, user);
+				return true;
+			}
+		
 		return false;
 	}
 
 	public boolean restoreBook(Book book, User user) throws RemoteException {
-		if (borrowers.remove(book) == null) {
+		isValidBook(book);
+		isValidUser(user);
+		if (borrowers.get(book) != null && 
+				borrowers.get(book).equals(user) && 
+				borrowers.remove(book) != null) {
 			histories.add(new History(book, user, 2));
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 
 	}
 
 	public boolean subscribeToWaitingList(Book book, User user) throws RemoteException {
+		isValidBook(book);
+		isValidUser(user);
 		if (borrowers.get(book) != null) {
 			ArrayBlockingQueue<User> usersWaiting = waitingList.getOrDefault(book, new ArrayBlockingQueue<User>(3));
 			try {
@@ -81,6 +117,8 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	}
 
 	public boolean unsubscribeToWaitingList(Book book, User user) throws RemoteException {
+		isValidBook(book);
+		isValidUser(user);
 		ArrayBlockingQueue<User> usersWaiting = waitingList.get(book);
 		if (usersWaiting != null) {
 			if (usersWaiting.remove(user)) {
@@ -92,6 +130,9 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	}
 
 	public Book searchByBarCode(long barCode) throws RemoteException {
+		if(barCode <= 0){
+			throw new IllegalArgumentException("barCode must be positive");
+		}
 		return library.get(barCode);
 	}
 
@@ -132,6 +173,7 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	}
 
 	public boolean isBuyable(Book book) throws RemoteException {
+		isValidBook(book);
 		long timestamp = bookRegistered.get(book.getBarCode());
 		Date date = new Date(timestamp);
 		Date currentDate = new Date();
@@ -149,6 +191,8 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	}
 
 	public boolean buyBook(Book book, User user) throws RemoteException {
+		isValidBook(book);
+		isValidUser(user);
 		if (isBuyable(book)) {
 			library.remove(book.getBarCode());
 			histories.add(new History(book, user, 3));
@@ -158,7 +202,12 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	}
 
 	public double getCost(Book book) throws RemoteException {
+		isValidBook(book);
 		return book.getCost();
+	}
+
+	public Users getUsers() throws RemoteException {
+		return users;
 	}
 
 }
