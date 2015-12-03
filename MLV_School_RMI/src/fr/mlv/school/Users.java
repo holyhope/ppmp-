@@ -1,5 +1,6 @@
 package fr.mlv.school;
 
+import java.rmi.RemoteException;
 import java.util.Set;
 
 public interface Users {
@@ -11,7 +12,7 @@ public interface Users {
 
 	public boolean isRegistered(User user);
 
-	public boolean register(User user, String password);
+	public boolean register(User user, String password) throws RemoteException;
 
 	public boolean grantPermission(User user, Permission permission);
 

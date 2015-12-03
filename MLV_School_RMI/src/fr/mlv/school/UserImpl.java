@@ -38,4 +38,22 @@ public class UserImpl extends UnicastRemoteObject implements User {
 	public String getRole() throws RemoteException {
 		return role;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof UserImpl)) {
+			return false;
+		}
+
+		UserImpl user = (UserImpl) obj;
+		return userName.equals(user.userName);
+	}
+
+	@Override
+	public int hashCode() {
+		return userName.hashCode();
+	}
 }

@@ -1,5 +1,6 @@
 package fr.mlv.school;
 
+import java.rmi.RemoteException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -51,6 +52,7 @@ public class UsersImpl implements Users {
 		if (user == null) {
 			throw new IllegalArgumentException("user is not valid");
 		}
+
 		return users.containsKey(user);
 	}
 
@@ -83,8 +85,8 @@ public class UsersImpl implements Users {
 	}
 
 	@Override
-	public boolean register(User user, String password) {
-		if (user == null) {
+	public boolean register(User user, String password) throws RemoteException {
+		if (user == null || isRegistered(user)) {
 			throw new IllegalArgumentException("user is not valid");
 		}
 		if (!isValidPassword(password)) {
@@ -92,6 +94,9 @@ public class UsersImpl implements Users {
 		}
 		if (users.containsKey(user)) {
 			throw new IllegalArgumentException("The user is already registered");
+		}
+		if (findByEmail(user.getEmail()) != null) {
+			throw new IllegalArgumentException("A user with this email is already registered");
 		}
 		try {
 			byte[] thedigest = getDigest(password);
@@ -105,7 +110,7 @@ public class UsersImpl implements Users {
 
 	@Override
 	public boolean grantPermission(User user, Permission permission) {
-		if (user == null) {
+		if (user == null || !isRegistered(user)) {
 			throw new IllegalArgumentException("User is not valid");
 		}
 		if (permission == null) {
@@ -123,7 +128,7 @@ public class UsersImpl implements Users {
 
 	@Override
 	public boolean userCan(User user, Permission permission) {
-		if (user == null) {
+		if (user == null || !isRegistered(user)) {
 			throw new IllegalArgumentException("User is not valid");
 		}
 		if (permission == null) {
@@ -137,7 +142,7 @@ public class UsersImpl implements Users {
 
 	@Override
 	public boolean revokePermission(User user, Permission permission) {
-		if (user == null) {
+		if (user == null || !isRegistered(user)) {
 			throw new IllegalArgumentException("User is not valid");
 		}
 		if (permission == null) {
@@ -146,7 +151,7 @@ public class UsersImpl implements Users {
 
 		CopyOnWriteArraySet<User> permitedUsers = getOrCreatePermited(permission);
 
-		if (permitedUsers.contains(user)) {
+		if (!permitedUsers.contains(user)) {
 			return false;
 		}
 
@@ -173,6 +178,9 @@ public class UsersImpl implements Users {
 
 	@Override
 	public Set<Permission> getUserPermissions(User user) {
+		if (user == null || !isRegistered(user)) {
+			throw new IllegalArgumentException("user is not valid");
+		}
 		return permissions.entrySet().parallelStream().filter(e -> e.getValue().contains(user)).map(e -> e.getKey())
 				.collect(Collectors.toSet());
 	}
