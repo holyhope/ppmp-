@@ -46,9 +46,12 @@ public class ConnexionGUI {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setSize(300, 200);
-		//frame.setBounds(100, 100, 450, 300);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setTitle("Connexion à la biblioteque MLV");
+		frame.setSize(324, 200);
+		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
+		frame.setResizable(false);
+		frame.setVisible(true);
 		
 		JDesktopPane desktopPane = new JDesktopPane();
 		desktopPane.setBackground(new Color(218, 165, 32));
