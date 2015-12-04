@@ -27,13 +27,13 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	}
 
 	public boolean addBook(Book book, User user) throws RemoteException {
-		if(book == null){
+		if (book == null) {
 			throw new IllegalArgumentException("Book is not Valid");
 		}
 		isValidUser(user);
 		if (users.userCan(user, Permission.ADD_BOOK)) {
 			bookRegistered.put(book.getBarCode(), System.currentTimeMillis());
-			library.put(book.getISBN(), book);
+			library.put(book.getBarCode(), book);
 			return true;
 		}
 		return false;
@@ -50,8 +50,8 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		return false;
 	}
 
-	public boolean isValidBook(Book book) throws RemoteException{
-		if(book == null){
+	public boolean isValidBook(Book book) throws RemoteException {
+		if (book == null) {
 			throw new IllegalArgumentException("Book is not Valid.");
 		}
 		if (!library.containsKey(book.getBarCode())) {
@@ -59,17 +59,17 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		}
 		return true;
 	}
-	
+
 	public boolean isValidUser(User user) throws RemoteException {
-		if(user == null){
+		if (user == null) {
 			throw new IllegalArgumentException("User is not Valid.");
 		}
-		if(!users.isRegistered(user)){
+		if (!users.isRegistered(user)) {
 			throw new IllegalArgumentException("This user isn't registered.");
 		}
 		return true;
 	}
-	
+
 	public boolean isBookAvailable(Book book) throws RemoteException {
 		isValidBook(book);
 		return borrowers.get(book) == null ? true : false;
@@ -78,21 +78,19 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	public boolean getBook(Book book, User user) throws RemoteException {
 		isValidBook(book);
 		isValidUser(user);
-			if (borrowers.get(book) == null) {
-				histories.add(new History(book, user, 1));
-				borrowers.put(book, user);
-				return true;
-			}
-		
+		if (borrowers.get(book) == null) {
+			histories.add(new History(book, user, 1));
+			borrowers.put(book, user);
+			return true;
+		}
+
 		return false;
 	}
 
 	public boolean restoreBook(Book book, User user) throws RemoteException {
 		isValidBook(book);
 		isValidUser(user);
-		if (borrowers.get(book) != null && 
-				borrowers.get(book).equals(user) && 
-				borrowers.remove(book) != null) {
+		if (borrowers.get(book) != null && borrowers.get(book).equals(user) && borrowers.remove(book) != null) {
 			histories.add(new History(book, user, 2));
 			return true;
 		}
@@ -130,13 +128,16 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	}
 
 	public Book searchByBarCode(long barCode) throws RemoteException {
-		if(barCode <= 0){
-			throw new IllegalArgumentException("barCode must be positive");
+		if (barCode <= 0) {
+			throw new IllegalArgumentException("barCode must be positive.");
 		}
 		return library.get(barCode);
 	}
 
 	public Book[] searchByISBN(long ISBN) throws RemoteException {
+		if (ISBN <= 0) {
+			throw new IllegalArgumentException("barCode must be positive.");
+		}
 		ArrayList<Book> books = new ArrayList<>();
 		for (Book book : library.values()) {
 			if (book.getISBN() == ISBN) {
@@ -149,6 +150,12 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	}
 
 	public Book[] searchByTitle(String title) throws RemoteException {
+		if (title == null) {
+			throw new IllegalArgumentException("title must not be null.");
+		}
+		if (title == "") {
+			throw new IllegalArgumentException("title must not be empty.");
+		}
 		ArrayList<Book> books = new ArrayList<>();
 		for (Book book : library.values()) {
 			if (book.getTitle().contains(title)) {
@@ -161,6 +168,12 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	}
 
 	public Book[] searchByAuthor(String author) throws RemoteException {
+		if (author == null) {
+			throw new IllegalArgumentException("author must not be null.");
+		}
+		if (author == "") {
+			throw new IllegalArgumentException("author must not be empty.");
+		}
 		ArrayList<Book> books = new ArrayList<>();
 		for (Book book : library.values()) {
 			if (book.getAuthor().contains(author)) {

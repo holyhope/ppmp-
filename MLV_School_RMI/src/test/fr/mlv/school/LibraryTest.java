@@ -8,9 +8,13 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 
+import fr.mlv.school.Book;
 import fr.mlv.school.BookImpl;
 import fr.mlv.school.LibraryImpl;
 import fr.mlv.school.Permission;
@@ -56,7 +60,7 @@ public class LibraryTest {
 		} catch (IllegalArgumentException iae) {
 		}
 
-		UserImpl userTeacher = new UserImpl("holyhope", "email.test@domain.com", "teacher");
+		UserImpl userTeacher = new UserImpl("holyhope2", "email.test@domaine.com", "teacher");
 		users.register(userTeacher, "123456");
 		users.grantPermission(user, Permission.ADD_BOOK);
 		assertTrue(libraryImpl.addBook(book, user));
@@ -123,7 +127,7 @@ public class LibraryTest {
 			fail("Not registered User should not be allowed.");
 		} catch (IllegalArgumentException iae) {
 		}
-		UserImpl user = new UserImpl("holyhope", "email.test@domain.com", "user");
+		UserImpl user = new UserImpl("holyhope2", "email.test@domainz.com", "user");
 		users.register(user, "123456");
 		assertFalse(libraryImpl.deleteBook(book, user));
 		assertTrue(libraryImpl.deleteBook(book, userTeacher));
@@ -336,51 +340,50 @@ public class LibraryTest {
 		users.register(user, "AZERTY");
 		users.grantPermission(user, Permission.ADD_BOOK);
 		libraryImpl.addBook(book, user);
-		
+
 		assertFalse(libraryImpl.unsubscribeToWaitingList(book, user));
 		UserImpl user2 = new UserImpl("max2", "max2@test.fr", "user");
 		users.register(user2, "AZERTY");
 		libraryImpl.getBook(book, user2);
 		libraryImpl.subscribeToWaitingList(book, user);
-		
-		try{
+
+		try {
 			libraryImpl.unsubscribeToWaitingList(null, user);
 			fail("Null book should not be allowed.");
-		}catch(IllegalArgumentException iae){
+		} catch (IllegalArgumentException iae) {
 		}
-		
-		try{
+
+		try {
 			libraryImpl.unsubscribeToWaitingList(book, null);
 			fail("Null user should not be allowed.");
-		}catch(IllegalArgumentException iae){
+		} catch (IllegalArgumentException iae) {
 		}
-		
-		try{
+
+		try {
 			UserImpl userNotRegistered = new UserImpl("Hacker", "hack@wanadoo.fr", "Pirate");
 			libraryImpl.unsubscribeToWaitingList(book, userNotRegistered);
 			fail("Not registered user should not be allowed.");
-		}catch(IllegalArgumentException iae){
+		} catch (IllegalArgumentException iae) {
 		}
-		
-		try{
+
+		try {
 			BookImpl bookNotRegistered = new BookImpl(2L, 2L, "Vingt mille lieues sous les mers", "Jules Verne",
-					"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
-					32.70, 2002, 03, 22);
+					"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.",
+					"Gründ", 32.70, 2002, 03, 22);
 			libraryImpl.unsubscribeToWaitingList(bookNotRegistered, user);
 			fail("Not registered book should not be allowed.");
-		}catch(IllegalArgumentException iae){
+		} catch (IllegalArgumentException iae) {
 		}
-		
-		
+
 		BookImpl bookNotSubcribed = new BookImpl(3L, 3L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
 		libraryImpl.addBook(bookNotSubcribed, user);
 		assertFalse(libraryImpl.unsubscribeToWaitingList(bookNotSubcribed, user));
-		
+
 		assertFalse(libraryImpl.unsubscribeToWaitingList(book, user2));
 		assertTrue(libraryImpl.unsubscribeToWaitingList(book, user));
-		
+
 	}
 
 	@Test
@@ -393,55 +396,251 @@ public class LibraryTest {
 		BookImpl book2 = new BookImpl(2L, 2L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
-		
+
 		Users users = libraryImpl.getUsers();
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
 		users.register(user, "AZERTY");
 		users.grantPermission(user, Permission.ADD_BOOK);
 		libraryImpl.addBook(book, user);
 		libraryImpl.addBook(book2, user);
-		try{
+		try {
 			libraryImpl.searchByBarCode(0);
 			fail("BarCode should not be equal to 0");
-		}catch(IllegalArgumentException iae){
+		} catch (IllegalArgumentException iae) {
 		}
-		try{
+		try {
 			libraryImpl.searchByBarCode(-1);
 			fail("BarCode should be positive");
-		}catch(IllegalArgumentException iae){
+		} catch (IllegalArgumentException iae) {
 		}
 		assertNotSame(libraryImpl.searchByBarCode(book2.getBarCode()), book);
 		assertSame(libraryImpl.searchByBarCode(book.getBarCode()), book);
 	}
 
 	@Test
-	public void testSearchByISBN() {
-		fail("Not yet implemented");
+	public void testSearchByISBN() throws RemoteException {
+		LibraryImpl libraryImpl = new LibraryImpl();
+
+		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
+				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
+				32.70, 2002, 03, 22);
+		BookImpl book2 = new BookImpl(1L, 2L, "Vingt mille lieues sous les mers", "Jules Verne",
+				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
+				32.70, 2002, 03, 22);
+		BookImpl book3 = new BookImpl(1L, 3L, "Vingt mille lieues sous les mers", "Jules Verne",
+				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
+				32.70, 2002, 03, 22);
+		Users users = libraryImpl.getUsers();
+		UserImpl user = new UserImpl("max", "max@test.fr", "user");
+		users.register(user, "AZERTY");
+		users.grantPermission(user, Permission.ADD_BOOK);
+		libraryImpl.addBook(book, user);
+		libraryImpl.addBook(book2, user);
+		libraryImpl.addBook(book3, user);
+
+		try {
+			libraryImpl.searchByISBN(0);
+			fail("ISBN should not be equal to 0");
+		} catch (IllegalArgumentException iae) {
+		}
+		try {
+			libraryImpl.searchByISBN(-1);
+			fail("ISBN should be positive");
+		} catch (IllegalArgumentException iae) {
+		}
+		Book[] books = libraryImpl.searchByISBN(1L);
+		List<Book> expectedList = new ArrayList<>();
+		expectedList.add(book);
+		expectedList.add(book2);
+		expectedList.add(book3);
+		List<Book> list = Arrays.asList(books);
+		assertEquals(list.size(), expectedList.size());
+		for (Book bookInList : list) {
+			assertTrue(expectedList.contains(bookInList));
+		}
 	}
 
 	@Test
-	public void testSearchByTitle() {
-		fail("Not yet implemented");
+	public void testSearchByTitle() throws RemoteException {
+		LibraryImpl libraryImpl = new LibraryImpl();
+
+		BookImpl book = new BookImpl(1L, 1L, "Dix", "Jules Verne",
+				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
+				32.70, 2002, 03, 22);
+		BookImpl book2 = new BookImpl(1L, 2L, "Dix-huit", "Jules Verne",
+				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
+				32.70, 2002, 03, 22);
+		BookImpl book3 = new BookImpl(1L, 3L, "Dx-sept", "Jules Verne",
+				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
+				32.70, 2002, 03, 22);
+		Users users = libraryImpl.getUsers();
+		UserImpl user = new UserImpl("max", "max@test.fr", "user");
+		users.register(user, "AZERTY");
+		users.grantPermission(user, Permission.ADD_BOOK);
+		libraryImpl.addBook(book, user);
+		libraryImpl.addBook(book2, user);
+		libraryImpl.addBook(book3, user);
+
+		try {
+			libraryImpl.searchByTitle(null);
+			fail("title should not be null");
+		} catch (IllegalArgumentException iae) {
+		}
+		try {
+			libraryImpl.searchByTitle("");
+			fail("title should not be empty");
+		} catch (IllegalArgumentException iae) {
+		}
+		Book[] books = libraryImpl.searchByTitle("Dix");
+		List<Book> expectedList = new ArrayList<>();
+		expectedList.add(book);
+		expectedList.add(book2);
+		List<Book> list = Arrays.asList(books);
+		assertEquals(list.size(), expectedList.size());
+		for (Book bookInList : list) {
+			assertTrue(expectedList.contains(bookInList));
+		}
 	}
 
 	@Test
-	public void testSearchByAuthor() {
-		fail("Not yet implemented");
+	public void testSearchByAuthor() throws RemoteException {
+		LibraryImpl libraryImpl = new LibraryImpl();
+
+		BookImpl book = new BookImpl(1L, 1L, "Dix", "Jules Verne",
+				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
+				32.70, 2002, 03, 22);
+		BookImpl book2 = new BookImpl(1L, 2L, "Dix-huit", "Jules Vene",
+				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
+				32.70, 2002, 03, 22);
+		BookImpl book3 = new BookImpl(1L, 3L, "Dx-sept", "Julis Verne",
+				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
+				32.70, 2002, 03, 22);
+		Users users = libraryImpl.getUsers();
+		UserImpl user = new UserImpl("max", "max@test.fr", "user");
+		users.register(user, "AZERTY");
+		users.grantPermission(user, Permission.ADD_BOOK);
+		libraryImpl.addBook(book, user);
+		libraryImpl.addBook(book2, user);
+		libraryImpl.addBook(book3, user);
+
+		try {
+			libraryImpl.searchByAuthor(null);
+			fail("author should not be null");
+		} catch (IllegalArgumentException iae) {
+		}
+		try {
+			libraryImpl.searchByAuthor("");
+			fail("author should not be empty");
+		} catch (IllegalArgumentException iae) {
+		}
+		Book[] books = libraryImpl.searchByAuthor("Jules");
+		List<Book> expectedList = new ArrayList<>();
+		expectedList.add(book);
+		expectedList.add(book2);
+		List<Book> list = Arrays.asList(books);
+		assertEquals(list.size(), expectedList.size());
+		for (Book bookInList : list) {
+			assertTrue(expectedList.contains(bookInList));
+		}
 	}
 
 	@Test
-	public void testIsBuyable() {
-		fail("Not yet implemented");
+	public void testIsBuyable() throws RemoteException {
+		LibraryImpl libraryImpl = new LibraryImpl();
+
+		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
+				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
+				32.70, 2002, 03, 22);
+		Users users = libraryImpl.getUsers();
+		UserImpl user = new UserImpl("max", "max@test.fr", "user");
+		users.register(user, "AZERTY");
+		users.grantPermission(user, Permission.ADD_BOOK);
+		libraryImpl.addBook(book, user);
+
+		try {
+			libraryImpl.isBuyable(null);
+			fail("Book should not be null.");
+		} catch (IllegalArgumentException iae) {
+		}
+		try {
+			BookImpl bookNotRegistered = new BookImpl(2L, 2L, "Vingt mille lieues sous les mers", "Jules Verne",
+					"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.",
+					"Gründ", 32.70, 2002, 03, 22);
+			libraryImpl.isBuyable(bookNotRegistered);
+			fail("Not Registered Book should not be allowed.");
+		} catch (IllegalArgumentException iae) {
+		}
+
+		assertFalse(libraryImpl.isBuyable(book));
 	}
 
 	@Test
-	public void testBuyBook() {
-		fail("Not yet implemented");
+	public void testBuyBook() throws RemoteException {
+		LibraryImpl libraryImpl = new LibraryImpl();
+
+		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
+				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
+				32.70, 2002, 03, 22);
+		Users users = libraryImpl.getUsers();
+		UserImpl user = new UserImpl("max", "max@test.fr", "user");
+		users.register(user, "AZERTY");
+		users.grantPermission(user, Permission.ADD_BOOK);
+		libraryImpl.addBook(book, user);
+
+		try {
+			libraryImpl.buyBook(null, user);
+			fail("Null book should not be allowed");
+		} catch (IllegalArgumentException iae) {
+		}
+		try {
+			libraryImpl.buyBook(book, null);
+			fail("Null user should not be allowed");
+		} catch (IllegalArgumentException iae) {
+		}
+		try {
+			BookImpl bookNotRegistered = new BookImpl(2L, 2L, "Vingt mille lieues sous les mers", "Jules Verne",
+					"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.",
+					"Gründ", 32.70, 2002, 03, 22);
+			libraryImpl.buyBook(bookNotRegistered, user);
+			fail("Not registered book should not be allowed");
+		} catch (IllegalArgumentException iae) {
+		}
+		try {
+			UserImpl userNotRegistered = new UserImpl("Hacker", "hack@wanadoo.fr", "Pirate");
+			libraryImpl.buyBook(book, userNotRegistered);
+			fail("Not registered user should not be allowed");
+		} catch (IllegalArgumentException iae) {
+		}
+
+		assertFalse(libraryImpl.buyBook(book, user));
 	}
 
 	@Test
-	public void testGetCost() {
-		fail("Not yet implemented");
-	}
+	public void testGetCost() throws RemoteException {
+		LibraryImpl libraryImpl = new LibraryImpl();
 
+		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
+				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
+				32.70, 2002, 03, 22);
+		Users users = libraryImpl.getUsers();
+		UserImpl user = new UserImpl("max", "max@test.fr", "user");
+		users.register(user, "AZERTY");
+		users.grantPermission(user, Permission.ADD_BOOK);
+		libraryImpl.addBook(book, user);
+
+		try {
+			libraryImpl.getCost(null);
+			fail("Null book should not be allowed.");
+		} catch (IllegalArgumentException iae) {
+		}
+		try {
+			BookImpl bookNotRegistered = new BookImpl(2L, 2L, "Vingt mille lieues sous les mers", "Jules Verne",
+					"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.",
+					"Gründ", 32.70, 2002, 03, 22);
+			libraryImpl.getCost(bookNotRegistered);
+			fail("Not registered should not be allowed.");
+		} catch (IllegalArgumentException iae) {
+		}
+		assertEquals(libraryImpl.getCost(book), 32.70, 0.005);
+	}
 }

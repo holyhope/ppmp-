@@ -86,7 +86,7 @@ public class UsersImpl implements Users {
 
 	@Override
 	public boolean register(User user, String password) throws RemoteException {
-		if (user == null || isRegistered(user)) {
+		if (user == null) {
 			throw new IllegalArgumentException("user is not valid");
 		}
 		if (!isValidPassword(password)) {
