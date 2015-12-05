@@ -27,6 +27,7 @@ import javax.swing.ButtonGroup;
 import java.awt.Component;
 
 import javax.naming.ldap.Rdn;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
@@ -42,6 +43,7 @@ import javax.swing.UIManager;
 import java.awt.FlowLayout;
 
 import javax.swing.JButton;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import java.awt.event.ActionListener;
@@ -127,7 +129,7 @@ public class BiblioGUI {
 		scrollPane.getViewport().setBackground(myColor);
 		panelRight.add(scrollPane);
 	
-		Object data[][] = {{"Test","Test","Test","Test","Test","Test","Ajouter au panier"}};
+		Object data[][] = {{"Test1","Test2","Test2","Test4","Test5","Test6","Ajouter au panier"}};
 		String headers[]= {"Isbn","Title","Author","Summary","Publisher","Format","+"};
 		table = new JTable(data,headers);
 		 table.getColumn("+").setCellRenderer(new ButtonRenderer());
@@ -179,8 +181,6 @@ public class BiblioGUI {
 		gbc_lblFindLivre.gridy = 4;
 		desktopPaneLeft.add(lblFindLivre, gbc_lblFindLivre);
 		
-		ButtonGroup group = new ButtonGroup();
-		
 		textField = new JTextField();
 		GridBagConstraints gbc_textField = new GridBagConstraints();
 		gbc_textField.insets = new Insets(0, 0, 5, 0);
@@ -189,76 +189,50 @@ public class BiblioGUI {
 		desktopPaneLeft.add(textField, gbc_textField);
 		textField.setColumns(10);
 		
-		JPanel panel = new JPanel();
-		panel.setForeground(new Color(218, 165, 32));
-		panel.setBackground(new Color(218, 165, 32));
-		FlowLayout flowLayout = (FlowLayout) panel.getLayout();
-		flowLayout.setAlignment(FlowLayout.LEFT);
-		GridBagConstraints gbc_panel = new GridBagConstraints();
-		gbc_panel.fill = GridBagConstraints.VERTICAL;
-		gbc_panel.insets = new Insets(0, 0, 5, 0);
-		gbc_panel.gridx = 0;
-		gbc_panel.gridy = 6;
-		desktopPaneLeft.add(panel, gbc_panel);
-		
-		JRadioButton rdbtnTitle = new JRadioButton("Title");
-		rdbtnTitle.setSelected(true);
-		rdbtnTitle.setHorizontalAlignment(SwingConstants.LEFT);
-		panel.add(rdbtnTitle);
-		group.add(rdbtnTitle);
-		
-		JRadioButton rdbtnIsbn = new JRadioButton("Isbn");
-		rdbtnIsbn.setHorizontalAlignment(SwingConstants.LEFT);
-		panel.add(rdbtnIsbn);
-		group.add(rdbtnIsbn);
-		
-		JRadioButton rdbtnAuthor = new JRadioButton("Author");
-		rdbtnAuthor.setHorizontalAlignment(SwingConstants.LEFT);
-		panel.add(rdbtnAuthor);
-		group.add(rdbtnAuthor);
-		
 		JButton btnFindBook = new JButton("Rechercher");
 		btnFindBook.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+
+				boolean find = false;
+				table.setRowSelectionAllowed(true);
+				String bookInfo = textField.getText();
+				System.out.println(bookInfo);
 				
+				for (int row = 0; row <= table.getRowCount() - 1; row++) {
+
+	                for (int col = 0; col <= table.getColumnCount() - 1; col++) {
+
+	                    if (bookInfo.equals(table.getValueAt(row, col))) {
+	                    	find = true;
+	                    	
+	                    	System.out.println("trouvé en " + row +" "+col);
+	                    	
+	                        // this will automatically set the view of the scroll in the location of the value
+	                        table.scrollRectToVisible(table.getCellRect(row, 0, true));
+
+	                        // this will automatically set the focus of the searched/selected row/value
+	                        table.setRowSelectionInterval(row, row);
+
+	                    }
+	                }
+	            }
+				
+				if(!find){
+					table.setRowSelectionAllowed(false);
+				}
 			}
 		});
+		
 		GridBagConstraints gbc_btnFindBook = new GridBagConstraints();
+		gbc_btnFindBook.insets = new Insets(0, 0, 5, 0);
 		gbc_btnFindBook.anchor = GridBagConstraints.SOUTH;
 		gbc_btnFindBook.gridx = 0;
-		gbc_btnFindBook.gridy = 7;
+		gbc_btnFindBook.gridy = 6;
 		desktopPaneLeft.add(btnFindBook, gbc_btnFindBook);
 		
 		//Bottom
 		JPanel panelDown = new JPanel();
 		frame.getContentPane().add(panelDown, BorderLayout.SOUTH);
-	}
-	
-	private static final class JGradientButton extends JButton{
-	    private JGradientButton(String text){
-	        super(text);
-	        setContentAreaFilled(false);
-	    }
-
-	    @Override
-	    protected void paintComponent(Graphics g){
-	        Graphics2D g2 = (Graphics2D)g.create();
-	        g2.setPaint(new GradientPaint(
-	                new Point(0, 0), 
-	                getBackground(), 
-	                new Point(0, getHeight()/3), 
-	                Color.YELLOW));
-	        g2.fillRect(0, 0, getWidth(), getHeight()/3);
-	        g2.setPaint(new GradientPaint(
-	                new Point(0, getHeight()/3), 
-	                Color.YELLOW, 
-	                new Point(0, getHeight()), 
-	                getBackground()));
-	        g2.fillRect(0, getHeight()/3, getWidth(), getHeight());
-	        g2.dispose();
-
-	        super.paintComponent(g);
-	    }
 	}
 }
 
