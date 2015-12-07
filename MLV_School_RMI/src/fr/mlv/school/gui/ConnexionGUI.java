@@ -9,14 +9,21 @@ import javax.swing.JDesktopPane;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+
+import fr.mlv.school.UserImpl;
+
 import javax.swing.JButton;
 import java.awt.Color;
+import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
+import java.awt.event.ActionEvent;
 
 public class ConnexionGUI {
 
 	private JFrame frame;
 	private JPasswordField passwordField;
-	private JTextField textField;
+	private JTextField loginField;
+	private UserImpl user;
 
 	/**
 	 * Launch the application.
@@ -46,8 +53,8 @@ public class ConnexionGUI {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setTitle("Connexion à la biblioteque MLV");
-		frame.setSize(324, 200);
+		frame.setTitle("Connexion a la biblioteque MLV");
+		frame.setSize(312, 194);
 		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
 		frame.setResizable(false);
@@ -69,12 +76,25 @@ public class ConnexionGUI {
 		passwordField.setBounds(155, 63, 133, 28);
 		desktopPane.add(passwordField);
 		
-		textField = new JTextField();
-		textField.setBounds(154, 16, 134, 28);
-		desktopPane.add(textField);
-		textField.setColumns(10);
+		loginField = new JTextField();
+		loginField.setBounds(154, 16, 134, 28);
+		desktopPane.add(loginField);
+		loginField.setColumns(10);
 		
 		JButton btnConnexion = new JButton("Connexion");
+		btnConnexion.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String login = loginField.getText();
+				String pass = passwordField.getText();
+				try {
+					user = new UserImpl(login, "test@gmail.com", "user");
+					System.out.println(pass);
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
 		btnConnexion.setBounds(18, 120, 270, 29);
 		desktopPane.add(btnConnexion);
 	}

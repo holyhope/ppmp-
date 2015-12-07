@@ -1,18 +1,13 @@
 package fr.mlv.school.gui;
 
 import java.awt.EventQueue;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.Toolkit;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import java.awt.BorderLayout;
-import java.awt.Button;
 import java.awt.Dimension;
 
 import javax.swing.JSplitPane;
@@ -22,44 +17,37 @@ import javax.swing.ImageIcon;
 import java.awt.GridLayout;
 
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 
-import java.awt.Component;
-
-import javax.naming.ldap.Rdn;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
-import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.JDesktopPane;
 import javax.swing.JTextField;
-import javax.swing.JRadioButton;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-
-import java.awt.FlowLayout;
 
 import javax.swing.JButton;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+
+import fr.mlv.school.BookImpl;
+import fr.mlv.school.LibraryImpl;
+import fr.mlv.school.Permission;
+import fr.mlv.school.UserImpl;
+import fr.mlv.school.Users;
 
 import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
 import java.awt.event.ActionEvent;
 import java.awt.Color;
-import javax.swing.SpringLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-import javax.swing.JSeparator;
 
 public class BiblioGUI {
 
 	private JFrame frame;
 	private JTable table;
 	private JTextField textField;
+	private LibraryImpl lib;
 
 	/**
 	 * Launch the application.
@@ -79,20 +67,41 @@ public class BiblioGUI {
 
 	/**
 	 * Create the application.
+	 * @throws RemoteException 
 	 */
-	public BiblioGUI() {
+	public BiblioGUI() throws RemoteException {
+		lib = new LibraryImpl();
 		initialize();
 	}
 
 	/**
 	 * Initialize the contents of the frame.
+	 * @throws RemoteException 
 	 */
-	private void initialize() {
+	private void initialize() throws RemoteException {
 		
 		int frameWidth = 900;
 		int frameHeight = 600;
 		Color myColor = new Color(218,165,32);
+		
+		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
+				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique. L'animal, rapide, fusiforme et phosphorescent, est responsable de plusieurs naufrages, brisant le bois des navires avec une force colossale. De retour d'une expédition dans le Nebraska, Pierre Aronnax, professeur suppléant au Muséum d'histoire naturelle de Paris, émet l'hypothèse d'un narval géant. "
+						+ "Les compagnies d'assurances maritimes menacent d'augmenter leurs prix et demandent que le monstre soit éliminé. Une grande chasse est alors organisée à bord de l’Abraham-Lincoln, fleuron de la marine américaine, mené par le commandant Farragut. Aronnax reçoit une lettre du secrétaire de la Marine lui demandant de rejoindre l’expédition pour représenter la France. Le scientifique embarque avec son fidèle domestique flamand, Conseil. A bord, ils font la connaissance de Ned Land, harponneur originaire de Québec. Après des mois de navigation, la confrontation avec le monstre a enfin lieu, et l'’Abraham-Lincoln est endommagé. Un choc entre le monstre et la frégate projette Aronnax, Conseil et Ned par dessus bord. Ils échouent finalement sur le dos du monstre, qui n'est autre qu'un sous-marin en tôle armée. Les naufragés sont faits prisonniers et se retrouvent à bord du mystérieux appareil. Ils font alors connaissance du capitaine Nemo, qui refuse de leur rendre la liberté. "
+						+ "« Vous êtes venus surprendre un secret que nul homme au monde ne doit pénétrer, le secret de toute mon existence ! Et vous croyez que je vais vous renvoyer sur cette terre qui ne doit plus me connaître ! Jamais ! En vous retenant, ce n’est pas vous que je garde, c’est moi-même1 ! ». "
+						+ "Alors que Ned et Conseil ne cherchent qu'à s'évader, Aronnax éprouve une certaine curiosité pour Nemo, cet homme qui a fui le monde de la surface et la société. Le capitaine consent à révéler au savant les secrets des mers. Il lui fait découvrir le fonctionnement de son sous-marin, le Nautilus, et décide d’entreprendre un tour du monde des profondeurs. Nos héros découvrent des trésors engloutis, comme l'Atlantide et des épaves d'anciens navires, s'aventurent sur les îles du Pacifique et la banquise du Pôle Sud, chassent dans les forêts sous-marines et combattent des calmars géants. Aronnax finit par découvrir que Nemo utilise le Nautilus comme une machine de guerre, un instrument de vengeance contre les navires appartenant à une « nation maudite » à laquelle il voue une terrible haine. "
+						+ "« Je suis le droit, je suis la justice ! me dit-il. Je suis l’opprimé, et voilà l’oppresseur ! C’est par lui que tout ce que j’ai aimé, chéri, vénéré, patrie, femme, enfants, mon père, ma mère, j’ai vu tout périr ! Tout ce que je hais est là2 ! ». "
+						+ "Aronnax, Ned et Conseil parviennent à s’échapper. Ils s’embarquent à bord d'une chaloupe et accosteront sur une des îles Lofoten. Ils ne sauront jamais ce qu’est devenu le Nautilus, peut-être englouti dans un maelstrom.",
+				"Gründ", 32.70, 2002, 03, 22);
+		
+		Users users = lib.getUsers();
 
+		UserImpl user = new UserImpl("holyhope", "email.test@domain.com", "user");
+		users.register(user, "AZERTY");
+		users.grantPermission(user, Permission.REMOVE_BOOK);
+		
+		lib.addBook(book, user);
+
+		
 		//Fenetre principale
 		frame = new JFrame();
 		frame.setTitle("Biblioteque MLV");
@@ -131,10 +140,15 @@ public class BiblioGUI {
 	
 		Object data[][] = {{"Test1","Test2","Test2","Test4","Test5","Test6","Ajouter au panier"}};
 		String headers[]= {"Isbn","Title","Author","Summary","Publisher","Format","+"};
-		table = new JTable(data,headers);
-		 table.getColumn("+").setCellRenderer(new ButtonRenderer());
-		    table.getColumn("+").setCellEditor(
-		        new ButtonEditor(new JCheckBox()));
+		
+		DefaultTableModel model = new DefaultTableModel(data,headers);
+		table = new JTable(model);
+		
+		ButtonEditor buttonAddPanier = new ButtonEditor(new JCheckBox());
+		buttonAddPanier.addTableModel(model);
+		
+		table.getColumn("+").setCellRenderer(new ButtonRenderer());
+		    table.getColumn("+").setCellEditor(buttonAddPanier);
 		scrollPane.setViewportView(table);
 		
 		JDesktopPane desktopPaneLeft = new JDesktopPane();
@@ -163,7 +177,7 @@ public class BiblioGUI {
 		JButton btnPanier = new JButton("Mon panier");
 		btnPanier.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				PanierGUI panniierGUI = new PanierGUI();
+				PanierGUI panierGUI = new PanierGUI();
 			}
 		});
 		GridBagConstraints gbc_btnPanier = new GridBagConstraints();

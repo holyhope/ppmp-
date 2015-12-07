@@ -9,6 +9,8 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 public class ButtonEditor extends DefaultCellEditor {
 	protected JButton button;
@@ -17,6 +19,8 @@ public class ButtonEditor extends DefaultCellEditor {
 
 	private boolean isPushed;
 
+	private DefaultTableModel model;
+	
 	public ButtonEditor(JCheckBox checkBox) {
 		super(checkBox);
 		button = new JButton();
@@ -40,12 +44,17 @@ public class ButtonEditor extends DefaultCellEditor {
 		label = (value == null) ? "" : value.toString();
 		button.setText(label);
 		isPushed = true;
+		
+		//try remove row
+		model.removeRow(row);
+		
 		return button;
 	}
 
 	public Object getCellEditorValue() {
 		if (isPushed) {
-			JOptionPane.showMessageDialog(button,"TODO Ajouter au panier");
+			JOptionPane.showMessageDialog(button,"TODO Ajouter au panier");	
+			
 		}
 		isPushed = false;
 		return new String(label);
@@ -58,5 +67,9 @@ public class ButtonEditor extends DefaultCellEditor {
 
 	protected void fireEditingStopped() {
 		super.fireEditingStopped();
+	}
+	
+	public void addTableModel(DefaultTableModel model){
+		this.model = model;
 	}
 }
