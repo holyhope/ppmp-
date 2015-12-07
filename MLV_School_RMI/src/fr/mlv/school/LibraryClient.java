@@ -21,6 +21,7 @@ public class LibraryClient {
 				ConnexionGUI connexionGUI = ConnexionGUI.construct(library);
 				connexionGUI.addConnexionListener(user -> {
 					BiblioGUI biblioGUI = BiblioGUI.construct(library, user);
+					connexionGUI.close();
 					System.out.println("connexion");
 				});
 			} catch (Exception e) {

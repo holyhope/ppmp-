@@ -18,7 +18,6 @@ import javax.swing.JTextField;
 
 import fr.mlv.school.Library;
 import fr.mlv.school.User;
-import fr.mlv.school.UserImpl;
 
 public class ConnexionGUI {
 	private final Library					library;
@@ -59,9 +58,14 @@ public class ConnexionGUI {
 	public static ConnexionGUI construct(Library library) {
 		ConnexionGUI connexionGUI = new ConnexionGUI(library);
 
-		connexionGUI.frame.setTitle("Connexion a la biblioteque MLV");
+		try {
+			connexionGUI.frame.setTitle("Connexion à " + library.getName());
+		} catch (RemoteException e) {
+			e.printStackTrace(System.err);
+			connexionGUI.frame.setTitle("Connexion à une biliothèque inconnue");
+		}
 		connexionGUI.frame.setSize(312, 194);
-		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		connexionGUI.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		connexionGUI.frame.setLocationRelativeTo(null);
 		connexionGUI.frame.setResizable(false);
 
@@ -132,5 +136,9 @@ public class ConnexionGUI {
 
 	public void addConnexionListener(Consumer<User> consumer) {
 		consumers.add(consumer);
+	}
+
+	public void close() {
+		this.frame.dispose();
 	}
 }

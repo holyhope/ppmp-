@@ -28,7 +28,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
-import fr.mlv.school.BookImpl;
 import fr.mlv.school.Library;
 import fr.mlv.school.User;
 
@@ -222,5 +221,9 @@ public class BiblioGUI {
 		biblioGUI.frame.getContentPane().add(panelDown, BorderLayout.SOUTH);
 
 		return biblioGUI;
+	}
+
+	public void close() {
+		frame.dispose();
 	}
 }

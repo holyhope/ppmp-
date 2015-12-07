@@ -104,6 +104,7 @@ public class UsersImpl implements Users {
 			e.printStackTrace(System.err);
 			return false;
 		}
+
 		return true;
 	}
 
