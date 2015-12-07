@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class UsersImpl implements Users {
 	private static final String											   DIGEST_METHOD = "MD5";
 
-	private final ConcurrentHashMap<User, byte[]>						   users		 = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<User, byte[]>						   passwords	 = new ConcurrentHashMap<>();
 	private final ConcurrentHashMap<Permission, CopyOnWriteArraySet<User>> permissions	 = new ConcurrentHashMap<>();
 
 	@Override
@@ -21,7 +21,7 @@ public class UsersImpl implements Users {
 		if (username == null || username.isEmpty()) {
 			throw new IllegalArgumentException("username is not valid");
 		}
-		return users.keySet().parallelStream().filter(u -> {
+		return passwords.keySet().parallelStream().filter(u -> {
 			try {
 				return u.getUsername().equals(username);
 			} catch (Exception e) {
@@ -37,7 +37,7 @@ public class UsersImpl implements Users {
 			throw new IllegalArgumentException("email is not valid");
 		}
 
-		return users.keySet().parallelStream().filter(u -> {
+		return passwords.keySet().parallelStream().filter(u -> {
 			try {
 				return u.getEmail().equals(email);
 			} catch (Exception e) {
@@ -53,7 +53,7 @@ public class UsersImpl implements Users {
 			throw new IllegalArgumentException("user is not valid");
 		}
 
-		return users.containsKey(user);
+		return passwords.containsKey(user);
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class UsersImpl implements Users {
 
 		try {
 			byte[] thedigest = getDigest(password);
-			return Arrays.equals(users.get(user), thedigest);
+			return Arrays.equals(passwords.get(user), thedigest);
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace(System.err);
 			return false;
@@ -76,8 +76,7 @@ public class UsersImpl implements Users {
 
 	private byte[] getDigest(String password) throws NoSuchAlgorithmException {
 		MessageDigest md = MessageDigest.getInstance(DIGEST_METHOD);
-		byte[] thedigest = md.digest(password.getBytes());
-		return thedigest;
+		return md.digest(password.getBytes());
 	}
 
 	private boolean isValidPassword(String password) {
@@ -92,7 +91,7 @@ public class UsersImpl implements Users {
 		if (!isValidPassword(password)) {
 			throw new IllegalArgumentException("password is not valid");
 		}
-		if (users.containsKey(user)) {
+		if (passwords.containsKey(user)) {
 			throw new IllegalArgumentException("The user is already registered");
 		}
 		if (findByEmail(user.getEmail()) != null) {
@@ -100,7 +99,7 @@ public class UsersImpl implements Users {
 		}
 		try {
 			byte[] thedigest = getDigest(password);
-			users.put(user, thedigest);
+			passwords.put(user, thedigest);
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace(System.err);
 			return false;

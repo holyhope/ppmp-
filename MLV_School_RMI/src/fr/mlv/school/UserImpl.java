@@ -27,6 +27,11 @@ public class UserImpl extends UnicastRemoteObject implements User {
 		this.role = role;
 	}
 
+	@Override
+	public String toString() {
+		return userName + " (" + email + ")";
+	}
+
 	public String getEmail() throws RemoteException {
 		return email;
 	}

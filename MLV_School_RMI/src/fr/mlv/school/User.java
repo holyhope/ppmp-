@@ -4,9 +4,9 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface User extends Remote {
-	String getEmail() throws RemoteException;
+	public String getEmail() throws RemoteException;
 
-	String getUsername() throws RemoteException;
+	public String getUsername() throws RemoteException;
 
-	String getRole() throws RemoteException;
+	public String getRole() throws RemoteException;
 }

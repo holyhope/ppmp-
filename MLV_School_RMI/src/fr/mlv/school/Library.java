@@ -2,6 +2,7 @@ package fr.mlv.school;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.Set;
 
 public interface Library extends Remote {
 
@@ -12,9 +13,9 @@ public interface Library extends Remote {
 	boolean deleteBook(Book book, User user) throws RemoteException;
 
 	boolean isBookAvailable(Book book) throws RemoteException;
-	
+
 	boolean isValidUser(User user) throws RemoteException;
-	
+
 	boolean isValidBook(Book book) throws RemoteException;
 
 	boolean getBook(Book book, User user) throws RemoteException;
@@ -24,7 +25,7 @@ public interface Library extends Remote {
 	boolean subscribeToWaitingList(Book book, User user) throws RemoteException;
 
 	boolean unsubscribeToWaitingList(Book book, User user) throws RemoteException;
-	
+
 	Book searchByBarCode(long barCode) throws RemoteException;
 
 	Book[] searchByISBN(long ISBN) throws RemoteException;
@@ -32,13 +33,33 @@ public interface Library extends Remote {
 	Book[] searchByTitle(String title) throws RemoteException;
 
 	Book[] searchByAuthor(String author) throws RemoteException;
-	
+
 	boolean isBuyable(Book book) throws RemoteException;
-	
+
 	boolean buyBook(Book book, User user) throws RemoteException;
-	
+
 	double getCost(Book book) throws RemoteException;
-	
-	Users getUsers() throws RemoteException;
+
+	/**********/
+
+	boolean authenticate(User user, String pass) throws RemoteException;
+
+	public User findByUsername(String username) throws RemoteException;
+
+	public User findByEmail(String email) throws RemoteException;
+
+	public boolean isRegistered(User user) throws RemoteException;
+
+	public boolean register(User currentUser, User user, String password) throws RemoteException;
+
+	public boolean grantPermission(User currentUser, User user, Permission permission) throws RemoteException;
+
+	public boolean revokePermission(User currentUser, User user, Permission permission) throws RemoteException;
+
+	boolean userCan(User currentUser, User user, Permission permission) throws RemoteException;
+
+	Set<User> getPermitedUsers(User currentUser, Permission permission) throws RemoteException;
+
+	Set<Permission> getUserPermissions(User currentUser, User user) throws RemoteException;
 
 }
