@@ -42,11 +42,7 @@ public interface Library extends Remote {
 
 	/**********/
 
-	boolean authenticate(User user, String pass) throws RemoteException;
-
-	public User findByUsername(String username) throws RemoteException;
-
-	public User findByEmail(String email) throws RemoteException;
+	public User connect(String login, String pass) throws RemoteException;
 
 	public boolean isRegistered(User user) throws RemoteException;
 
@@ -56,10 +52,12 @@ public interface Library extends Remote {
 
 	public boolean revokePermission(User currentUser, User user, Permission permission) throws RemoteException;
 
-	boolean userCan(User currentUser, User user, Permission permission) throws RemoteException;
+	public boolean userCan(User currentUser, User user, Permission permission) throws RemoteException;
 
-	Set<User> getPermitedUsers(User currentUser, Permission permission) throws RemoteException;
+	public Set<User> getPermitedUsers(User currentUser, Permission permission) throws RemoteException;
 
-	Set<Permission> getUserPermissions(User currentUser, User user) throws RemoteException;
+	public Set<Permission> getUserPermissions(User currentUser, User user) throws RemoteException;
+
+	public void disconnect(User user) throws RemoteException;
 
 }

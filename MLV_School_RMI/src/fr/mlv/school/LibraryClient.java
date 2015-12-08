@@ -9,6 +9,7 @@ import java.rmi.RemoteException;
 import fr.mlv.school.gui.BiblioGUI;
 import fr.mlv.school.gui.ConnexionGUI;
 
+@SuppressWarnings("deprecation")
 public class LibraryClient {
 	public static void main(String[] args) {
 		try {
@@ -19,19 +20,26 @@ public class LibraryClient {
 
 			try {
 				ConnexionGUI connexionGUI = ConnexionGUI.construct(library);
-				connexionGUI.addConnexionListener(user -> {
-					BiblioGUI biblioGUI = BiblioGUI.construct(library, user);
-					connexionGUI.close();
-					System.out.println("connexion");
+				connexionGUI.addConnectedListener(user -> {
+					BiblioGUI biblioGUI;
+					try {
+						biblioGUI = BiblioGUI.construct(library, user);
+						biblioGUI.addCloseListener(event -> {
+							try {
+								library.disconnect(user);
+							} catch (Exception e) {
+								e.printStackTrace(System.err);
+							}
+						});
+						connexionGUI.close();
+					} catch (Exception e) {
+						e.printStackTrace(System.err);
+					}
 				});
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		} catch (NotBoundException e) {
+		} catch (MalformedURLException | RemoteException | NotBoundException e) {
 			e.printStackTrace();
 		}
 	}

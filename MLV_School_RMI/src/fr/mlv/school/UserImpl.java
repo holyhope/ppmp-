@@ -56,9 +56,4 @@ public class UserImpl extends UnicastRemoteObject implements User {
 		UserImpl user = (UserImpl) obj;
 		return userName.equals(user.userName);
 	}
-
-	@Override
-	public int hashCode() {
-		return userName.hashCode();
-	}
 }

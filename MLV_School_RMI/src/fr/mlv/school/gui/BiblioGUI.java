@@ -11,7 +11,12 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Vector;
+import java.util.function.Consumer;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -27,17 +32,19 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
+import fr.mlv.school.Book;
 import fr.mlv.school.Library;
 import fr.mlv.school.User;
 
 public class BiblioGUI {
+	private final JFrame						   frame	 = new JFrame();
+	private final JTextField					   textField = new JTextField();;
+	private final Library						   library;
+	private final User							   user;
 
-	private final JFrame	 frame	   = new JFrame();
-	private JTable			 table;
-	private final JTextField textField = new JTextField();;
-	private Library			 library;
-	private User			 user;
+	private final ArrayList<Consumer<WindowEvent>> consumers = new ArrayList<>();
 
 	/**
 	 * Launch the application.
@@ -74,7 +81,7 @@ public class BiblioGUI {
 	 * 
 	 * @throws RemoteException
 	 */
-	public static BiblioGUI construct(Library library, User user) {
+	public static BiblioGUI construct(Library library, User user) throws RemoteException {
 		BiblioGUI biblioGUI = new BiblioGUI(library, user);
 
 		int frameWidth = 900;
@@ -82,7 +89,12 @@ public class BiblioGUI {
 		Color myColor = new Color(218, 165, 32);
 
 		// Fenetre principale
-		biblioGUI.frame.setTitle("Biblioteque MLV");
+		try {
+			biblioGUI.frame.setTitle(library.getName());
+		} catch (RemoteException e1) {
+			e1.printStackTrace(System.err);
+			biblioGUI.frame.setTitle("Bibliothèque inconnue");
+		}
 		// frame.setSize(frameWidth, frameHeight);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		biblioGUI.frame.setBounds((int) screenSize.getWidth() - frameWidth, 0, frameWidth, frameHeight);
@@ -117,17 +129,26 @@ public class BiblioGUI {
 		scrollPane.getViewport().setBackground(myColor);
 		panelRight.add(scrollPane);
 
-		Object data[][] = { { "Test1", "Test2", "Test2", "Test4", "Test5", "Test6", "Ajouter au panier" } };
-		String headers[] = { "Isbn", "Title", "Author", "Summary", "Publisher", "Format", "+" };
+		Vector<Vector<Object>> data = new Vector<>();
+		Vector<String> headers = new Vector<>();
+		headers.addElement("Isbn");
+		headers.addElement("Title");
+		headers.addElement("Author");
+		headers.addElement("Summary");
+		headers.addElement("Publisher");
+		headers.addElement("");
+		headers.addElement("");
 
 		DefaultTableModel model = new DefaultTableModel(data, headers);
 		JTable table = new JTable(model);
+		table.setRowSelectionAllowed(false);
 
 		ButtonEditor buttonAddPanier = new ButtonEditor(new JCheckBox());
 		buttonAddPanier.addTableModel(model);
 
-		table.getColumn("+").setCellRenderer(new ButtonRenderer());
-		table.getColumn("+").setCellEditor(buttonAddPanier);
+		TableColumn columnKart = table.getColumn(headers.lastElement());
+		columnKart.setCellRenderer(new ButtonRenderer());
+		columnKart.setCellEditor(buttonAddPanier);
 		scrollPane.setViewportView(table);
 
 		JDesktopPane desktopPaneLeft = new JDesktopPane();
@@ -176,35 +197,27 @@ public class BiblioGUI {
 
 		JButton btnFindBook = new JButton("Rechercher");
 		btnFindBook.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent event) {
+				Book[] books;
+				try {
+					books = library.searchByTitle(biblioGUI.textField.getText());
+					ArrayList<Number> isbns = new ArrayList<>();
 
-				boolean find = false;
-				table.setRowSelectionAllowed(true);
-				String bookInfo = biblioGUI.textField.getText();
-				System.out.println(bookInfo);
-
-				for (int row = 0; row <= table.getRowCount() - 1; row++) {
-
-					for (int col = 0; col <= table.getColumnCount() - 1; col++) {
-
-						if (bookInfo.equals(table.getValueAt(row, col))) {
-							find = true;
-
-							System.out.println("trouvé en " + row + " " + col);
-
-							// this will automatically set the view of the
-							// scroll in the location of the value
-							table.scrollRectToVisible(table.getCellRect(row, 0, true));
-
-							// this will automatically set the focus of the
-							// searched/selected row/value
-							table.setRowSelectionInterval(row, row);
+					for (Book book : books) {
+						if (!isbns.contains(book.getISBN())) {
+							Vector<Object> vectorBook = new Vector<>();
+							vectorBook.addElement(book.getISBN());
+							vectorBook.addElement(book.getTitle());
+							vectorBook.addElement(book.getAuthor());
+							vectorBook.addElement(book.getSummary());
+							vectorBook.addElement(book.getPublisher());
+							vectorBook.addElement("Ajouter au panier");
+							data.addElement(vectorBook);
 						}
 					}
-				}
-
-				if (!find) {
-					table.setRowSelectionAllowed(false);
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace(System.err);
 				}
 			}
 		});
@@ -220,10 +233,46 @@ public class BiblioGUI {
 		JPanel panelDown = new JPanel();
 		biblioGUI.frame.getContentPane().add(panelDown, BorderLayout.SOUTH);
 
+		biblioGUI.frame.addWindowListener(new WindowListener() {
+			@Override
+			public void windowOpened(WindowEvent e) {
+			}
+
+			@Override
+			public void windowIconified(WindowEvent e) {
+			}
+
+			@Override
+			public void windowDeiconified(WindowEvent e) {
+			}
+
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+			}
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				biblioGUI.consumers.parallelStream().forEach(consumer -> consumer.accept(e));
+			}
+
+			@Override
+			public void windowClosed(WindowEvent e) {
+			}
+
+			@Override
+			public void windowActivated(WindowEvent e) {
+			}
+		});
+		biblioGUI.frame.setVisible(true);
+
 		return biblioGUI;
 	}
 
 	public void close() {
 		frame.dispose();
+	}
+
+	public void addCloseListener(Consumer<WindowEvent> consumer) {
+		consumers.add(consumer);
 	}
 }

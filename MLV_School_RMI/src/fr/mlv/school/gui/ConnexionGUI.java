@@ -3,8 +3,8 @@ package fr.mlv.school.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -82,59 +82,99 @@ public class ConnexionGUI {
 		desktopPane.add(lblPassWord);
 
 		connexionGUI.passwordField.setBounds(155, 63, 133, 28);
+		connexionGUI.passwordField.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					connexionGUI.connect();
+				}
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+		});
 		desktopPane.add(connexionGUI.passwordField);
 
 		connexionGUI.loginField.setBounds(154, 16, 134, 28);
+		connexionGUI.loginField.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					connexionGUI.connect();
+				}
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+		});
 		desktopPane.add(connexionGUI.loginField);
 		connexionGUI.loginField.setColumns(10);
 
 		JButton btnConnexion = new JButton("Connexion");
-		btnConnexion.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
-				String login = connexionGUI.loginField.getText();
-				String pass = connexionGUI.passwordField.getText();
-				try {
-					try {
-						User user = library.findByUsername(login);
-						if (library.authenticate(user, pass)) {
-							connexionGUI.consumers.parallelStream().forEach(c -> c.accept(user));
-							System.out.println("Tout va bien");
-						} else {
-							connexionGUI.wizz();
-						}
-					} catch (IllegalArgumentException e) {
-						System.err.println("Cannot authenticate: " + e.getMessage());
-						connexionGUI.wizz();
-					}
-				} catch (RemoteException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-		});
+		btnConnexion.addActionListener(e -> connexionGUI.connect());
 		btnConnexion.setBounds(18, 120, 270, 29);
 		desktopPane.add(btnConnexion);
 
 		connexionGUI.frame.setVisible(true);
+		connexionGUI.loginField.grabFocus();
 
 		return connexionGUI;
 	}
 
-	public void wizz() {
-		Point point = frame.getLocation();
-		for (int i = 0; i < 7; i++) {
-			for (int j = 1; j < 20; j++) {
-				frame.setLocation((int) (point.x + (j * Math.pow(-1, i % 2))), point.y);
-			}
+	public void connect() {
+		String login = loginField.getText();
+		String pass = passwordField.getText();
+		try {
 			try {
-				Thread.sleep(80);
+				User user = library.connect(login, pass);
+				consumers.parallelStream().forEach(c -> c.accept(user));
+			} catch (IllegalArgumentException e) {
+				System.err.println("Cannot authenticate: " + e.getMessage());
+				wizz();
+			}
+		} catch (RemoteException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace(System.err);
+		}
+	}
+
+	public void wizz() {
+		final int delta = 20;
+		final int nbWizz = 4;
+		final int speed = 125;
+
+		Point point = frame.getLocation();
+
+		for (int i = 0; i < nbWizz; i++) {
+			int pow = (int) Math.pow(-1, i % 2);
+
+			for (int j = 1; j < delta; j++) {
+				frame.setLocation(point.x + j * pow, point.y);
+			}
+
+			for (int j = delta - 1; j >= 0; j--) {
+				frame.setLocation(point.x + j * pow, point.y);
+			}
+
+			try {
+				Thread.sleep(10000 / speed);
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
 		}
 	}
 
-	public void addConnexionListener(Consumer<User> consumer) {
+	public void addConnectedListener(Consumer<User> consumer) {
 		consumers.add(consumer);
 	}
 

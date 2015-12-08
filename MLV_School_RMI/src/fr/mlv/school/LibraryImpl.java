@@ -10,16 +10,16 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@SuppressWarnings("serial")
 public class LibraryImpl extends UnicastRemoteObject implements Library {
-	private static final long										serialVersionUID = 1L;
+	private final String											name			   = "MLV-School";
+	private final ConcurrentHashMap<Long, Book>						library			   = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Book, User>						borrowers		   = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Book, ArrayBlockingQueue<User>>	waitingList		   = new ConcurrentHashMap<>();
+	private final CopyOnWriteArrayList<History>						histories		   = new CopyOnWriteArrayList<>();
+	private final ConcurrentHashMap<Long, Long>						bookRegisteredTime = new ConcurrentHashMap<>();
 
 	private final Users												users;
-	private final String											name			 = "MLV-School";
-	private final ConcurrentHashMap<Long, Book>						library			 = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<Book, User>						borrowers		 = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<Book, ArrayBlockingQueue<User>>	waitingList		 = new ConcurrentHashMap<>();
-	private final CopyOnWriteArrayList<History>						histories		 = new CopyOnWriteArrayList<>();
-	private final ConcurrentHashMap<Long, Long>						bookRegistered	 = new ConcurrentHashMap<>();
 
 	public LibraryImpl(Users users) throws RemoteException {
 		this.users = Objects.requireNonNull(users);
@@ -35,7 +35,7 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		}
 		isValidUser(user);
 		if (users.userCan(user, Permission.ADD_BOOK)) {
-			bookRegistered.put(book.getBarCode(), System.currentTimeMillis());
+			bookRegisteredTime.put(book.getBarCode(), System.currentTimeMillis());
 			library.put(book.getBarCode(), book);
 			return true;
 		}
@@ -46,11 +46,18 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		isValidBook(book);
 		isValidUser(user);
 		if (users.userCan(user, Permission.REMOVE_BOOK)) {
-			library.remove(book.getISBN());
-			bookRegistered.remove(book.getBarCode());
+			library.remove(book.getBarCode());
+			bookRegisteredTime.remove(book.getBarCode());
 			return true;
 		}
 		return false;
+	}
+
+	public boolean forceDeleteBook(Book book) throws RemoteException {
+		isValidBook(book);
+		library.remove(book.getISBN());
+		bookRegisteredTime.remove(book.getBarCode());
+		return true;
 	}
 
 	public boolean isValidBook(Book book) throws RemoteException {
@@ -139,7 +146,7 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 
 	public Book[] searchByISBN(long ISBN) throws RemoteException {
 		if (ISBN <= 0) {
-			throw new IllegalArgumentException("barCode must be positive.");
+			throw new IllegalArgumentException("ISBN must be positive.");
 		}
 		ArrayList<Book> books = new ArrayList<>();
 		for (Book book : library.values()) {
@@ -190,7 +197,7 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 
 	public boolean isBuyable(Book book) throws RemoteException {
 		isValidBook(book);
-		long timestamp = bookRegistered.get(book.getBarCode());
+		long timestamp = bookRegisteredTime.get(book.getBarCode());
 		Date date = new Date(timestamp);
 		Date currentDate = new Date();
 		int diffInDays = (int) ((currentDate.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
@@ -227,18 +234,13 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	}
 
 	@Override
-	public boolean authenticate(User user, String password) throws RemoteException {
-		return users.authenticate(user, password);
-	}
-
-	@Override
-	public User findByUsername(String username) throws RemoteException {
-		return users.findByUsername(username);
-	}
-
-	@Override
-	public User findByEmail(String email) throws RemoteException {
-		return users.findByEmail(email);
+	public User connect(String username, String password) throws RemoteException {
+		User user = users.findByUsername(username);
+		if (!users.authenticate(user, password)) {
+			throw new IllegalArgumentException("Cannot authenticate now.");
+		}
+		System.out.println("User " + user.getUsername() + " connected.");
+		return user;
 	}
 
 	@Override
@@ -274,5 +276,15 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	@Override
 	public Set<Permission> getUserPermissions(User currentUser, User user) throws RemoteException {
 		return users.getUserPermissions(user);
+	}
+
+	@Override
+	public void disconnect(User user) throws RemoteException {
+		// TODO Auto-generated method stub
+		System.out.println("User " + user.getUsername() + " disconnected.");
+	}
+
+	public Book searchByBarCode(Long barCode) {
+		return library.get(barCode);
 	}
 }

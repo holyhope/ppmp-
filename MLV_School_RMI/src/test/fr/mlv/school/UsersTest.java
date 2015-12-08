@@ -12,12 +12,12 @@ import org.junit.Test;
 
 import fr.mlv.school.Permission;
 import fr.mlv.school.UserImpl;
-import fr.mlv.school.UsersImpl;
+import fr.mlv.school.Users;
 
 public class UsersTest {
 	@Test
 	public void testFindByUsername() throws RemoteException {
-		UsersImpl usersImpl = new UsersImpl();
+		Users usersImpl = new Users();
 		UserImpl user = new UserImpl("administrator", "admin@upem.fr", "admin");
 		usersImpl.register(user, "password");
 		assertNull(usersImpl.findByUsername("badusername"));
@@ -36,7 +36,7 @@ public class UsersTest {
 
 	@Test
 	public void testFindByEmail() throws RemoteException {
-		UsersImpl usersImpl = new UsersImpl();
+		Users usersImpl = new Users();
 		UserImpl user = new UserImpl("administrator", "admin@upem.fr", "admin");
 		usersImpl.register(user, "password");
 		assertNull(usersImpl.findByEmail("bad.email@upem.fr"));
@@ -55,7 +55,7 @@ public class UsersTest {
 
 	@Test
 	public void testAuthenticate() throws RemoteException {
-		UsersImpl usersImpl = new UsersImpl();
+		Users usersImpl = new Users();
 		UserImpl user = new UserImpl("administrator", "admin@upem.fr", "admin");
 		usersImpl.register(user, "password");
 		assertFalse(usersImpl.authenticate(user, "badpassword"));
@@ -83,7 +83,7 @@ public class UsersTest {
 
 	@Test
 	public void testIsRegistered() throws RemoteException {
-		UsersImpl usersImpl = new UsersImpl();
+		Users usersImpl = new Users();
 		UserImpl user1 = new UserImpl("administrator", "admin@upem.fr", "admin");
 		UserImpl user2 = new UserImpl("administrator2", "admin2@upem.fr", "admin");
 		UserImpl user3 = new UserImpl("administrator", "admin3@upem.fr", "admin");
@@ -106,7 +106,7 @@ public class UsersTest {
 
 	@Test
 	public void testRegister() throws RemoteException {
-		UsersImpl usersImpl = new UsersImpl();
+		Users usersImpl = new Users();
 		UserImpl user1 = new UserImpl("administrator", "admin@upem.fr", "admin");
 		UserImpl user2 = new UserImpl("administrator2", "admin2@upem.fr", "admin");
 		UserImpl user3 = new UserImpl("administrator", "admin3@upem.fr", "admin");
@@ -148,7 +148,7 @@ public class UsersTest {
 
 	@Test
 	public void testGrantPermission() throws RemoteException {
-		UsersImpl usersImpl = new UsersImpl();
+		Users usersImpl = new Users();
 		UserImpl user = new UserImpl("administrator", "admin@upem.fr", "admin");
 
 		try {
@@ -180,7 +180,7 @@ public class UsersTest {
 
 	@Test
 	public void testRevokePermission() throws RemoteException {
-		UsersImpl usersImpl = new UsersImpl();
+		Users usersImpl = new Users();
 		UserImpl user = new UserImpl("administrator", "admin@upem.fr", "admin");
 
 		try {
@@ -212,7 +212,7 @@ public class UsersTest {
 
 	@Test
 	public void testUserCan() throws RemoteException {
-		UsersImpl usersImpl = new UsersImpl();
+		Users usersImpl = new Users();
 		UserImpl user1 = new UserImpl("administrator", "admin@upem.fr", "admin");
 		UserImpl user2 = new UserImpl("administrator2", "admin2@upem.fr", "admin");
 
@@ -252,7 +252,7 @@ public class UsersTest {
 
 	@Test
 	public void testGetUserPermissions() throws RemoteException {
-		UsersImpl usersImpl = new UsersImpl();
+		Users usersImpl = new Users();
 		UserImpl user1 = new UserImpl("administrator", "admin@upem.fr", "admin");
 		UserImpl user2 = new UserImpl("administrator2", "admin2@upem.fr", "admin");
 
