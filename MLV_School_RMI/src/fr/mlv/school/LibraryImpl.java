@@ -263,7 +263,7 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	}
 
 	@Override
-	public User connect(String username, String password) throws RemoteException {
+	public User connect(String username, char password[]) throws RemoteException {
 		User user = users.findByUsername(username);
 		if (!users.authenticate(user, password)) {
 			throw new IllegalArgumentException("Cannot authenticate now.");

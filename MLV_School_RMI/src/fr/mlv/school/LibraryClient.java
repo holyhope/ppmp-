@@ -16,7 +16,12 @@ public class LibraryClient {
 			// System.setProperty("java.rmi.server.codebase", codebase);
 			System.setProperty("java.security.policy", "sec.policy");
 			System.setSecurityManager(new RMISecurityManager());
-			Library library = (Library) Naming.lookup("rmi://localhost:1099/LibraryService");
+
+			String serviceName = "rmi://localhost:1099/LibraryService";
+			if (args.length == 1) {
+				serviceName = args[0];
+			}
+			Library library = (Library) Naming.lookup(serviceName);
 
 			try {
 				ConnexionGUI connexionGUI = ConnexionGUI.construct(library);

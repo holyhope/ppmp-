@@ -1,5 +1,7 @@
 package fr.mlv.school;
 
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.rmi.RemoteException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -13,11 +15,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 public class Users {
-	private static final String											   DIGEST_METHOD = "MD5";
+	private static final String											   DIGEST_METHOD	= "MD5";
+	private static final Charset										   PASSWORD_CHARSET	= Charset
+			.forName("ISO-8859-1");;
 
-	private final ConcurrentHashMap<String, User>						   users		 = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<String, byte[]>						   passwords	 = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<Permission, CopyOnWriteArraySet<User>> permissions	 = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<String, User>						   users			= new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<String, byte[]>						   passwords		= new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Permission, CopyOnWriteArraySet<User>> permissions		= new ConcurrentHashMap<>();
 
 	public User findByUsername(String username) {
 		if (username == null || username.isEmpty()) {
@@ -54,11 +58,11 @@ public class Users {
 		return passwords.containsKey(user.getUsername());
 	}
 
-	public boolean authenticate(User user, String password) throws RemoteException {
+	public boolean authenticate(User user, char password[]) throws RemoteException {
 		if (user == null) {
 			throw new IllegalArgumentException("user is not valid");
 		}
-		if (password == null || password.isEmpty()) {
+		if (password == null || password.length == 0) {
 			throw new IllegalArgumentException("password is not valid");
 		}
 
@@ -71,16 +75,18 @@ public class Users {
 		}
 	}
 
-	private byte[] getDigest(String password) throws NoSuchAlgorithmException {
+	private byte[] getDigest(char[] password) throws NoSuchAlgorithmException {
 		MessageDigest md = MessageDigest.getInstance(DIGEST_METHOD);
-		return md.digest(password.getBytes());
+		CharBuffer bb = CharBuffer.allocate(password.length);
+		bb.put(password).rewind();
+		return md.digest(PASSWORD_CHARSET.encode(bb).array());
 	}
 
-	private boolean isValidPassword(String password) {
-		return password != null && password.length() > 5;
+	private boolean isValidPassword(char[] password) {
+		return password != null && password.length > 5;
 	}
 
-	public boolean register(User user, String password) throws RemoteException {
+	public boolean register(User user, char password[]) throws RemoteException {
 		if (user == null) {
 			throw new IllegalArgumentException("user is not valid");
 		}

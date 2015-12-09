@@ -15,11 +15,15 @@ import fr.mlv.school.UserImpl;
 import fr.mlv.school.Users;
 
 public class UsersTest {
+	private static final char	BAD_PASSWORD[] = "badpassword".toCharArray();
+	private static final char	PASSWORD[]	   = "password".toCharArray();
+	private static final char[]	EMPTY_PASSWORD = "".toCharArray();
+
 	@Test
 	public void testFindByUsername() throws RemoteException {
 		Users usersImpl = new Users();
 		UserImpl user = new UserImpl("administrator", "admin@upem.fr", "admin");
-		usersImpl.register(user, "password");
+		usersImpl.register(user, PASSWORD);
 		assertNull(usersImpl.findByUsername("badusername"));
 		try {
 			usersImpl.findByUsername(null);
@@ -38,7 +42,7 @@ public class UsersTest {
 	public void testFindByEmail() throws RemoteException {
 		Users usersImpl = new Users();
 		UserImpl user = new UserImpl("administrator", "admin@upem.fr", "admin");
-		usersImpl.register(user, "password");
+		usersImpl.register(user, PASSWORD);
 		assertNull(usersImpl.findByEmail("bad.email@upem.fr"));
 		try {
 			usersImpl.findByEmail(null);
@@ -57,13 +61,13 @@ public class UsersTest {
 	public void testAuthenticate() throws RemoteException {
 		Users usersImpl = new Users();
 		UserImpl user = new UserImpl("administrator", "admin@upem.fr", "admin");
-		usersImpl.register(user, "password");
-		assertFalse(usersImpl.authenticate(user, "badpassword"));
-		assertTrue(usersImpl.authenticate(user, "password"));
-		assertTrue(usersImpl.authenticate(user, "password"));
+		usersImpl.register(user, PASSWORD);
+		assertFalse(usersImpl.authenticate(user, BAD_PASSWORD));
+		assertTrue(usersImpl.authenticate(user, PASSWORD));
+		assertTrue(usersImpl.authenticate(user, PASSWORD));
 
 		try {
-			usersImpl.authenticate(null, "password");
+			usersImpl.authenticate(null, PASSWORD);
 			fail("Null user should not be allowed");
 		} catch (IllegalArgumentException e) {
 		}
@@ -75,7 +79,7 @@ public class UsersTest {
 		}
 
 		try {
-			usersImpl.authenticate(user, "");
+			usersImpl.authenticate(user, EMPTY_PASSWORD);
 			fail("Empty password should not be allowed");
 		} catch (IllegalArgumentException e) {
 		}
@@ -90,7 +94,7 @@ public class UsersTest {
 		UserImpl user4 = new UserImpl("administrator4", "admin@upem.fr", "admin");
 
 		assertFalse(usersImpl.isRegistered(user1));
-		assertTrue(usersImpl.register(user1, "password"));
+		assertTrue(usersImpl.register(user1, PASSWORD));
 		assertTrue(usersImpl.isRegistered(user1));
 		assertTrue(usersImpl.isRegistered(user3));
 		assertFalse(usersImpl.isRegistered(user4));
@@ -112,23 +116,23 @@ public class UsersTest {
 		UserImpl user3 = new UserImpl("administrator", "admin3@upem.fr", "admin");
 		UserImpl user4 = new UserImpl("administrator4", "admin@upem.fr", "admin");
 
-		assertTrue(usersImpl.register(user1, "password"));
-		assertTrue(usersImpl.register(user2, "password"));
+		assertTrue(usersImpl.register(user1, PASSWORD));
+		assertTrue(usersImpl.register(user2, PASSWORD));
 
 		try {
-			usersImpl.register(user3, "password");
+			usersImpl.register(user3, PASSWORD);
 			fail("Duplicate username should not be allowed");
 		} catch (IllegalArgumentException e) {
 		}
 
 		try {
-			usersImpl.register(user4, "password");
+			usersImpl.register(user4, PASSWORD);
 			fail("Duplicate email should not be allowed");
 		} catch (IllegalArgumentException e) {
 		}
 
 		try {
-			usersImpl.register(null, "password");
+			usersImpl.register(null, PASSWORD);
 			fail("Null user should not be allowed");
 		} catch (IllegalArgumentException e) {
 		}
@@ -140,7 +144,7 @@ public class UsersTest {
 		}
 
 		try {
-			usersImpl.register(user1, "");
+			usersImpl.register(user1, EMPTY_PASSWORD);
 			fail("Empty password should not be allowed");
 		} catch (IllegalArgumentException e) {
 		}
@@ -157,7 +161,7 @@ public class UsersTest {
 		} catch (IllegalArgumentException e) {
 		}
 
-		usersImpl.register(user, "password");
+		usersImpl.register(user, PASSWORD);
 
 		assertTrue(usersImpl.grantPermission(user, Permission.ADD_BOOK));
 		assertFalse(usersImpl.grantPermission(user, Permission.ADD_BOOK));
@@ -189,7 +193,7 @@ public class UsersTest {
 		} catch (IllegalArgumentException e) {
 		}
 
-		usersImpl.register(user, "password");
+		usersImpl.register(user, PASSWORD);
 
 		assertFalse(usersImpl.revokePermission(user, Permission.ADD_BOOK));
 
@@ -222,8 +226,8 @@ public class UsersTest {
 		} catch (IllegalArgumentException e) {
 		}
 
-		usersImpl.register(user1, "password");
-		usersImpl.register(user2, "password");
+		usersImpl.register(user1, PASSWORD);
+		usersImpl.register(user2, PASSWORD);
 
 		assertFalse(usersImpl.userCan(user1, Permission.ADD_BOOK));
 
@@ -262,8 +266,8 @@ public class UsersTest {
 		} catch (IllegalArgumentException e) {
 		}
 
-		usersImpl.register(user1, "password");
-		usersImpl.register(user2, "password");
+		usersImpl.register(user1, PASSWORD);
+		usersImpl.register(user2, PASSWORD);
 		assertEquals(0, usersImpl.getUserPermissions(user1).size());
 
 		usersImpl.grantPermission(user1, Permission.ADD_BOOK);

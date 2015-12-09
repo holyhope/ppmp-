@@ -25,7 +25,6 @@ public class ConnexionGUI {
 	private final JFrame					frame		  = new JFrame();
 	private final JPasswordField			passwordField = new JPasswordField();;
 	private final JTextField				loginField	  = new JTextField();
-	private User							user;
 
 	private final ArrayList<Consumer<User>>	consumers	  = new ArrayList<>();
 
@@ -133,7 +132,7 @@ public class ConnexionGUI {
 
 	public void connect() {
 		String login = loginField.getText();
-		String pass = passwordField.getText();
+		char pass[] = passwordField.getPassword();
 		try {
 			try {
 				User user = library.connect(login, pass);
@@ -142,9 +141,9 @@ public class ConnexionGUI {
 				System.err.println("Cannot authenticate: " + e.getMessage());
 				wizz();
 			}
-		} catch (RemoteException e1) {
+		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace(System.err);
+			e.printStackTrace(System.err);
 		}
 	}
 

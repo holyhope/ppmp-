@@ -88,6 +88,8 @@ public class UserImpl extends UnicastRemoteObject implements User {
 
 	@Override
 	public boolean addObserver(Consumer<Notification> consumer) throws RemoteException {
+		System.out.println(this);
+		System.out.println(consumer);
 		return observers.add(Objects.requireNonNull(consumer));
 	}
 }

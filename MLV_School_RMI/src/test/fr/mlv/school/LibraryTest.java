@@ -22,6 +22,8 @@ import fr.mlv.school.UserImpl;
 import fr.mlv.school.Users;
 
 public class LibraryTest {
+	private static final char[]	NUMBER_PASSWORD	= "123456".toCharArray();
+	private static final char[]	AZERTY_PASSWORD	= "AZERTY".toCharArray();
 
 	@Test
 	public void testGetName() throws RemoteException {
@@ -34,7 +36,7 @@ public class LibraryTest {
 	public void testAddBook() throws RemoteException {
 		Users users = new Users();
 		UserImpl user = new UserImpl("holyhope", "email.test@domain.com", "user");
-		users.register(user, "AZERTY");
+		users.register(user, AZERTY_PASSWORD);
 		users.grantPermission(user, Permission.REMOVE_BOOK);
 		LibraryImpl libraryImpl = new LibraryImpl(users);
 		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
@@ -61,7 +63,7 @@ public class LibraryTest {
 		}
 
 		UserImpl userTeacher = new UserImpl("holyhope2", "email.test@domaine.com", "teacher");
-		users.register(userTeacher, "123456");
+		users.register(userTeacher, NUMBER_PASSWORD);
 		users.grantPermission(user, Permission.ADD_BOOK);
 		assertTrue(libraryImpl.addBook(book, user));
 
@@ -87,7 +89,7 @@ public class LibraryTest {
 				"Gründ", 32.70, 2002, 03, 22);
 
 		UserImpl userTeacher = new UserImpl("holyhope", "email.test@domain.com", "teacher");
-		users.register(userTeacher, "AZERTY");
+		users.register(userTeacher, AZERTY_PASSWORD);
 		users.grantPermission(userTeacher, Permission.REMOVE_BOOK);
 		users.grantPermission(userTeacher, Permission.ADD_BOOK);
 
@@ -127,7 +129,7 @@ public class LibraryTest {
 		} catch (IllegalArgumentException iae) {
 		}
 		UserImpl user = new UserImpl("holyhope2", "email.test@domainz.com", "user");
-		users.register(user, "123456");
+		users.register(user, NUMBER_PASSWORD);
 		assertFalse(libraryImpl.deleteBook(book, user));
 		assertTrue(libraryImpl.deleteBook(book, userTeacher));
 	}
@@ -147,7 +149,7 @@ public class LibraryTest {
 				"Gründ", 32.70, 2002, 03, 22);
 
 		UserImpl user = new UserImpl("holyhope", "email.test@domain.com", "teacher");
-		users.register(user, "AZERTY");
+		users.register(user, AZERTY_PASSWORD);
 		users.grantPermission(user, Permission.ADD_BOOK);
 		libraryImpl.addBook(book, user);
 		assertTrue(libraryImpl.isBookAvailable(book));
@@ -190,7 +192,7 @@ public class LibraryTest {
 				"Gründ", 32.70, 2002, 03, 22);
 
 		UserImpl user = new UserImpl("holyhope", "email.test@domain.com", "teacher");
-		users.register(user, "AZERTY");
+		users.register(user, AZERTY_PASSWORD);
 		users.grantPermission(user, Permission.ADD_BOOK);
 		libraryImpl.addBook(book, user);
 		assertTrue(libraryImpl.getBook(book, user));
@@ -234,9 +236,9 @@ public class LibraryTest {
 		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
-		
+
 		UserImpl user = new UserImpl("Borrower", "Borrower@test.com", "user");
-		users.register(user, "123456");
+		users.register(user, NUMBER_PASSWORD);
 		users.grantPermission(user, Permission.ADD_BOOK);
 		libraryImpl.addBook(book, user);
 		libraryImpl.getBook(book, user);
@@ -272,7 +274,7 @@ public class LibraryTest {
 		assertFalse(libraryImpl.restoreBook(bookAvailable, user));
 
 		UserImpl noBorrower = new UserImpl("NoBorrower", "NB@test.fr", "user");
-		users.register(noBorrower, "NOBORROWER");
+		users.register(noBorrower, "NOBORROWER".toCharArray());
 		assertFalse(libraryImpl.restoreBook(book, noBorrower));
 
 		assertTrue(libraryImpl.restoreBook(book, user));
@@ -286,14 +288,14 @@ public class LibraryTest {
 		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
-		
+
 		UserImpl user = new UserImpl("Borrower", "b@test.fr", "teacher");
-		users.register(user, "123456");
+		users.register(user, NUMBER_PASSWORD);
 		users.grantPermission(user, Permission.ADD_BOOK);
 		libraryImpl.addBook(book, user);
 
 		UserImpl userSubcriber = new UserImpl("Subscriber", "s@test.fr", "user");
-		users.register(userSubcriber, "AZERTY");
+		users.register(userSubcriber, AZERTY_PASSWORD);
 		assertFalse(libraryImpl.subscribeToWaitingList(book, userSubcriber));
 		libraryImpl.getBook(book, user);
 
@@ -335,15 +337,15 @@ public class LibraryTest {
 		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
-		
+
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
-		users.register(user, "AZERTY");
+		users.register(user, AZERTY_PASSWORD);
 		users.grantPermission(user, Permission.ADD_BOOK);
 		libraryImpl.addBook(book, user);
 
 		assertFalse(libraryImpl.unsubscribeToWaitingList(book, user));
 		UserImpl user2 = new UserImpl("max2", "max2@test.fr", "user");
-		users.register(user2, "AZERTY");
+		users.register(user2, AZERTY_PASSWORD);
 		libraryImpl.getBook(book, user2);
 		libraryImpl.subscribeToWaitingList(book, user);
 
@@ -399,7 +401,7 @@ public class LibraryTest {
 				32.70, 2002, 03, 22);
 
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
-		users.register(user, "AZERTY");
+		users.register(user, AZERTY_PASSWORD);
 		users.grantPermission(user, Permission.ADD_BOOK);
 		libraryImpl.addBook(book, user);
 		libraryImpl.addBook(book2, user);
@@ -431,9 +433,9 @@ public class LibraryTest {
 		BookImpl book3 = new BookImpl(1L, 3L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
-		
+
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
-		users.register(user, "AZERTY");
+		users.register(user, AZERTY_PASSWORD);
 		users.grantPermission(user, Permission.ADD_BOOK);
 		libraryImpl.addBook(book, user);
 		libraryImpl.addBook(book2, user);
@@ -475,9 +477,9 @@ public class LibraryTest {
 		BookImpl book3 = new BookImpl(1L, 3L, "Dx-sept", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
-		
+
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
-		users.register(user, "AZERTY");
+		users.register(user, AZERTY_PASSWORD);
 		users.grantPermission(user, Permission.ADD_BOOK);
 		libraryImpl.addBook(book, user);
 		libraryImpl.addBook(book2, user);
@@ -520,7 +522,7 @@ public class LibraryTest {
 				32.70, 2002, 03, 22);
 
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
-		users.register(user, "AZERTY");
+		users.register(user, AZERTY_PASSWORD);
 		users.grantPermission(user, Permission.ADD_BOOK);
 		libraryImpl.addBook(book, user);
 		libraryImpl.addBook(book2, user);
@@ -557,7 +559,7 @@ public class LibraryTest {
 				32.70, 2002, 03, 22);
 
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
-		users.register(user, "AZERTY");
+		users.register(user, AZERTY_PASSWORD);
 		users.grantPermission(user, Permission.ADD_BOOK);
 		libraryImpl.addBook(book, user);
 
@@ -588,7 +590,7 @@ public class LibraryTest {
 				32.70, 2002, 03, 22);
 
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
-		users.register(user, "AZERTY");
+		users.register(user, AZERTY_PASSWORD);
 		users.grantPermission(user, Permission.ADD_BOOK);
 		libraryImpl.addBook(book, user);
 
@@ -630,7 +632,7 @@ public class LibraryTest {
 				32.70, 2002, 03, 22);
 
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
-		users.register(user, "AZERTY");
+		users.register(user, AZERTY_PASSWORD);
 		users.grantPermission(user, Permission.ADD_BOOK);
 		libraryImpl.addBook(book, user);
 

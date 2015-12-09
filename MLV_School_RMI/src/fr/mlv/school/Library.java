@@ -39,12 +39,12 @@ public interface Library extends Remote {
 	boolean buyBook(Book book, User user) throws RemoteException;
 
 	double getCost(Book book) throws RemoteException;
-	
+
 	Book[] getAllBooks() throws RemoteException;
 
 	/**********/
 
-	public User connect(String login, String pass) throws RemoteException;
+	public User connect(String login, char[] pass) throws RemoteException;
 
 	public boolean isRegistered(User user) throws RemoteException;
 

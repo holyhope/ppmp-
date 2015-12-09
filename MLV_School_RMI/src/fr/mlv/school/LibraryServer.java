@@ -2,6 +2,7 @@ package fr.mlv.school;
 
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -33,9 +34,18 @@ public class LibraryServer {
 
 			LibraryServer libraryServer = new LibraryServer(users, library);
 
-			libraryServer.bind("rmi://localhost:1099/LibraryService");
+			System.setProperty("java.security.policy", "sec.policy");
+			System.setSecurityManager(new RMISecurityManager());
 
-			System.out.println("Server is Ready.");
+			String serviceName = "rmi://localhost:1099/LibraryService";
+			if (args.length == 1) {
+				serviceName = args[0];
+			}
+			try {
+				Naming.rebind(serviceName, library);
+			} catch (MalformedURLException e) {
+				System.err.println("Cannot bind library on " + serviceName + ": " + e.getMessage());
+			}
 
 			try (Scanner scanner = new Scanner(System.in)) {
 				scannerSystem = scanner;
@@ -44,13 +54,11 @@ public class LibraryServer {
 
 		} catch (RemoteException e) {
 			e.printStackTrace();
-		} catch (MalformedURLException mue) {
-			mue.printStackTrace();
 		}
 	}
 
 	private static enum Command {
-		QUIT, HELP, ADDUSER, REMOVEUSER, ADDPERMISSION, REMOVEPERMISSION, SAVE, LISTUSERS, ADDBOOK, REMOVEBOOK, LOAD, LISTBOOKS;
+		QUIT, BIND, HELP, ADDUSER, REMOVEUSER, ADDPERMISSION, REMOVEPERMISSION, SAVE, LISTUSERS, ADDBOOK, REMOVEBOOK, LOAD, LISTBOOKS;
 
 		public String toString() {
 			switch (this) {
@@ -58,6 +66,8 @@ public class LibraryServer {
 					return "quit";
 				case SAVE:
 					return "save";
+				case BIND:
+					return "bind";
 				case HELP:
 					return "help";
 				case ADDBOOK:
@@ -89,6 +99,8 @@ public class LibraryServer {
 					return QUIT;
 				case "save":
 					return SAVE;
+				case "bind":
+					return BIND;
 				case "help":
 					return HELP;
 				case "addbook":
@@ -126,6 +138,11 @@ public class LibraryServer {
 						break;
 					case HELP:
 						if (!helpCommand(out, scanner)) {
+							System.err.println("An error occured");
+						}
+						break;
+					case BIND:
+						if (!bindCommand(out, scanner)) {
 							System.err.println("An error occured");
 						}
 						break;
@@ -203,6 +220,15 @@ public class LibraryServer {
 		}
 	}
 
+	private boolean bindCommand(PrintStream out, Scanner scanner) throws RemoteException, MalformedURLException {
+		if (out != null) {
+			out.print("Nom du service :");
+		}
+		String serviceName = scanner.nextLine();
+		Naming.rebind(serviceName, library);
+		return true;
+	}
+
 	private boolean listBooksCommand(PrintStream out, Scanner scanner) throws RemoteException {
 		if (out == null) {
 			return false;
@@ -220,10 +246,14 @@ public class LibraryServer {
 			out.print("Nom du fichier :");
 		}
 		String filename = scanner.nextLine();
+		loadConfFile(filename);
+		return true;
+	}
+
+	private void loadConfFile(String filename) throws IOException, FileNotFoundException {
 		try (FileInputStream in = new FileInputStream(filename); Scanner scannerFile = new Scanner(in)) {
 			listenCommand(scannerFile, null);
 		}
-		return true;
 	}
 
 	private boolean removeUserCommand(PrintStream out, Scanner scanner) {
@@ -416,16 +446,6 @@ public class LibraryServer {
 			password = scannerSystem.nextLine();
 		}
 
-		return users.register(user, password);
-	}
-
-	private void bind(String serviceName) throws RemoteException, MalformedURLException {
-		// String codebase =
-		// "file:///Users/Maxime/git/ppmp-master/MLV_School_RMI/src";
-		// System.setProperty("java.rmi.server.codebase", codebase);
-
-		System.setProperty("java.security.policy", "sec.policy");
-		System.setSecurityManager(new RMISecurityManager());
-		Naming.rebind(serviceName, library);
+		return users.register(user, password.toCharArray());
 	}
 }
