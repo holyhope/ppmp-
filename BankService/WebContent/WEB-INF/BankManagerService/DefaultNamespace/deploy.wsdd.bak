@@ -1,0 +1,40 @@
+<!-- Use this file to deploy some handlers/chains and services      -->
+<!-- Two ways to do this:                                           -->
+<!--   java org.apache.axis.client.AdminClient deploy.wsdd          -->
+<!--      after the axis server is running                          -->
+<!-- or                                                             -->
+<!--   java org.apache.axis.utils.Admin client|server deploy.wsdd   -->
+<!--      from the same directory that the Axis engine runs         -->
+
+<deployment
+    xmlns="http://xml.apache.org/axis/wsdd/"
+    xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+
+  <!-- Services from BankManagerService WSDL service -->
+
+  <service name="BankManager" provider="java:RPC" style="wrapped" use="literal">
+      <parameter name="wsdlTargetNamespace" value="http://DefaultNamespace"/>
+      <parameter name="wsdlServiceElement" value="BankManagerService"/>
+      <parameter name="schemaQualified" value="http://DefaultNamespace"/>
+      <parameter name="wsdlServicePort" value="BankManager"/>
+      <parameter name="className" value="DefaultNamespace.BankManagerSoapBindingImpl"/>
+      <parameter name="wsdlPortType" value="BankManager"/>
+      <parameter name="typeMappingVersion" value="1.2"/>
+      <operation name="removeMoney" qname="operNS:removeMoney" xmlns:operNS="http://DefaultNamespace" returnQName="retNS:removeMoneyReturn" xmlns:retNS="http://DefaultNamespace" returnType="rtns:boolean" xmlns:rtns="http://www.w3.org/2001/XMLSchema" soapAction="" >
+        <parameter qname="pns:id" xmlns:pns="http://DefaultNamespace" type="tns:long" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:name" xmlns:pns="http://DefaultNamespace" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:firstname" xmlns:pns="http://DefaultNamespace" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:currency" xmlns:pns="http://DefaultNamespace" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:amount" xmlns:pns="http://DefaultNamespace" type="tns:double" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <operation name="depositMoney" qname="operNS:depositMoney" xmlns:operNS="http://DefaultNamespace" returnQName="retNS:depositMoneyReturn" xmlns:retNS="http://DefaultNamespace" returnType="rtns:boolean" xmlns:rtns="http://www.w3.org/2001/XMLSchema" soapAction="" >
+        <parameter qname="pns:id" xmlns:pns="http://DefaultNamespace" type="tns:long" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:name" xmlns:pns="http://DefaultNamespace" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:firstname" xmlns:pns="http://DefaultNamespace" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:currency" xmlns:pns="http://DefaultNamespace" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:amount" xmlns:pns="http://DefaultNamespace" type="tns:double" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <parameter name="allowedMethods" value="depositMoney removeMoney"/>
+
+  </service>
+</deployment>
