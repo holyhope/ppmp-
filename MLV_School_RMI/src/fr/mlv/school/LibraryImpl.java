@@ -33,23 +33,23 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 			throw new IllegalArgumentException("Book is not Valid");
 		}
 		checkValidUser(user);
-		if (users.userCan(user, Permission.ADD_BOOK)) {
-			bookRegisteredTime.put(book.getBarCode(), System.currentTimeMillis());
-			library.put(book.getBarCode(), book);
-			return true;
+		if (!users.userCan(user, Permission.ADD_BOOK)) {
+			throw new IllegalArgumentException("User is not allowed");
 		}
-		return false;
+		bookRegisteredTime.put(book.getBarCode(), System.currentTimeMillis());
+		library.put(book.getBarCode(), book);
+		return true;
 	}
 
 	public boolean deleteBook(Book book, User user) throws RemoteException {
 		checkValidBook(book);
 		checkValidUser(user);
-		if (users.userCan(user, Permission.REMOVE_BOOK)) {
-			library.remove(book.getBarCode());
-			bookRegisteredTime.remove(book.getBarCode());
-			return true;
+		if (!users.userCan(user, Permission.REMOVE_BOOK)) {
+			throw new IllegalArgumentException("User is not allowed");
 		}
-		return false;
+		library.remove(book.getBarCode());
+		bookRegisteredTime.remove(book.getBarCode());
+		return true;
 	}
 
 	public boolean forceDeleteBook(Book book) throws RemoteException {
