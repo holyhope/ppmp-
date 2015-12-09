@@ -15,7 +15,7 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	private final String											name			   = "MLV-School";
 	private final ConcurrentHashMap<Long, Book>						library			   = new ConcurrentHashMap<>();
 	private final ConcurrentHashMap<Book, User>						borrowers		   = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<Book, ArrayBlockingQueue<User>>	waitingList		   = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Book, ArrayBlockingQueue<Observer>>	waitingList		   = new ConcurrentHashMap<>();
 	private final CopyOnWriteArrayList<History>						histories		   = new CopyOnWriteArrayList<>();
 	private final ConcurrentHashMap<Long, Long>						bookRegisteredTime = new ConcurrentHashMap<>();
 
@@ -102,6 +102,11 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		isValidUser(user);
 		if (borrowers.get(book) != null && borrowers.get(book).equals(user) && borrowers.remove(book) != null) {
 			histories.add(new History(book, user, 2));
+			ArrayBlockingQueue<Observer> observers = waitingList.get(book);
+			if(observers != null){
+				observers.poll().notifyObserver(book);
+				waitingList.put(book, observers);
+			}
 			return true;
 		}
 		return false;
@@ -112,9 +117,10 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		isValidBook(book);
 		isValidUser(user);
 		if (borrowers.get(book) != null) {
-			ArrayBlockingQueue<User> usersWaiting = waitingList.getOrDefault(book, new ArrayBlockingQueue<User>(3));
+			ArrayBlockingQueue<Observer> usersWaiting = waitingList.getOrDefault(book, new ArrayBlockingQueue<Observer>(3));
+			
 			try {
-				usersWaiting.add(user);
+				usersWaiting.add((Observer)user);
 			} catch (IllegalStateException ise) {
 				return false;
 			}
@@ -127,7 +133,7 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	public boolean unsubscribeToWaitingList(Book book, User user) throws RemoteException {
 		isValidBook(book);
 		isValidUser(user);
-		ArrayBlockingQueue<User> usersWaiting = waitingList.get(book);
+		ArrayBlockingQueue<Observer> usersWaiting = waitingList.get(book);
 		if (usersWaiting != null) {
 			if (usersWaiting.remove(user)) {
 				waitingList.put(book, usersWaiting);

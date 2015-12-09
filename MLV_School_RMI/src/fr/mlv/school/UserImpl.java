@@ -4,7 +4,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.regex.Pattern;
 
-public class UserImpl extends UnicastRemoteObject implements User {
+public class UserImpl extends UnicastRemoteObject implements User, Observer {
 	private static final long	 serialVersionUID = 1L;
 	private static final Pattern emailValidator	  = Pattern.compile("^.+@.+\\..+$");
 
@@ -55,5 +55,11 @@ public class UserImpl extends UnicastRemoteObject implements User {
 
 		UserImpl user = (UserImpl) obj;
 		return userName.equals(user.userName);
+	}
+
+	@Override
+	public void notifyObserver(Book book) throws RemoteException {
+		System.out.println("Book Available to borrow !");
+		
 	}
 }
