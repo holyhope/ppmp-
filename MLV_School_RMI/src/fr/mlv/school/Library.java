@@ -14,9 +14,9 @@ public interface Library extends Remote {
 
 	boolean isBookAvailable(Book book) throws RemoteException;
 
-	boolean isValidUser(User user) throws RemoteException;
+	void checkValidUser(User user) throws RemoteException;
 
-	boolean isValidBook(Book book) throws RemoteException;
+	void checkValidBook(Book book) throws RemoteException;
 
 	boolean getBook(Book book, User user) throws RemoteException;
 
