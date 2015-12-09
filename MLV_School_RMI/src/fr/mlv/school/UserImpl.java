@@ -2,15 +2,21 @@ package fr.mlv.school;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class UserImpl extends UnicastRemoteObject implements User, Observer {
-	private static final long	 serialVersionUID = 1L;
-	private static final Pattern emailValidator	  = Pattern.compile("^.+@.+\\..+$");
+	private static final long		serialVersionUID = 1L;
+	private static final Pattern	emailValidator	 = Pattern.compile("^.+@.+\\..+$");
 
-	private final String		 userName;
-	private final String		 email;
-	private final String		 role;
+	private final String			userName;
+	private final String			email;
+	private final String			role;
+
+	private ArrayList<Notification>	notifications	 = new ArrayList<>();
 
 	public UserImpl(String userName, String email, String role) throws RemoteException {
 		if (userName == null || userName.length() == 0) {
@@ -58,8 +64,17 @@ public class UserImpl extends UnicastRemoteObject implements User, Observer {
 	}
 
 	@Override
-	public void notifyObserver(Book book) throws RemoteException {
-		System.out.println("Book Available to borrow !");
-		
+	public boolean consumeNotification(Notification notification) throws RemoteException {
+		return notifications.remove(Objects.requireNonNull(notification));
+	}
+
+	@Override
+	public boolean addNotification(Notification notification) throws RemoteException {
+		return notifications.add(Objects.requireNonNull(notification));
+	}
+
+	@Override
+	public List<Notification> getNotifications() throws RemoteException {
+		return new LinkedList<>(notifications);
 	}
 }
