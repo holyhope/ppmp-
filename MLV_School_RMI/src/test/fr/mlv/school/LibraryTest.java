@@ -25,13 +25,18 @@ public class LibraryTest {
 
 	@Test
 	public void testGetName() throws RemoteException {
-		LibraryImpl libraryImpl = new LibraryImpl();
+		Users users = new Users();
+		LibraryImpl libraryImpl = new LibraryImpl(users);
 		assertEquals("MLV-School", libraryImpl.getName());
 	}
 
 	@Test
 	public void testAddBook() throws RemoteException {
-		LibraryImpl libraryImpl = new LibraryImpl();
+		Users users = new Users();
+		UserImpl user = new UserImpl("holyhope", "email.test@domain.com", "user");
+		users.register(user, "AZERTY");
+		users.grantPermission(user, Permission.REMOVE_BOOK);
+		LibraryImpl libraryImpl = new LibraryImpl(users);
 		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique. L'animal, rapide, fusiforme et phosphorescent, est responsable de plusieurs naufrages, brisant le bois des navires avec une force colossale. De retour d'une expédition dans le Nebraska, Pierre Aronnax, professeur suppléant au Muséum d'histoire naturelle de Paris, émet l'hypothèse d'un narval géant. "
 						+ "Les compagnies d'assurances maritimes menacent d'augmenter leurs prix et demandent que le monstre soit éliminé. Une grande chasse est alors organisée à bord de l’Abraham-Lincoln, fleuron de la marine américaine, mené par le commandant Farragut. Aronnax reçoit une lettre du secrétaire de la Marine lui demandant de rejoindre l’expédition pour représenter la France. Le scientifique embarque avec son fidèle domestique flamand, Conseil. A bord, ils font la connaissance de Ned Land, harponneur originaire de Québec. Après des mois de navigation, la confrontation avec le monstre a enfin lieu, et l'’Abraham-Lincoln est endommagé. Un choc entre le monstre et la frégate projette Aronnax, Conseil et Ned par dessus bord. Ils échouent finalement sur le dos du monstre, qui n'est autre qu'un sous-marin en tôle armée. Les naufragés sont faits prisonniers et se retrouvent à bord du mystérieux appareil. Ils font alors connaissance du capitaine Nemo, qui refuse de leur rendre la liberté. "
@@ -41,11 +46,6 @@ public class LibraryTest {
 						+ "Aronnax, Ned et Conseil parviennent à s’échapper. Ils s’embarquent à bord d'une chaloupe et accosteront sur une des îles Lofoten. Ils ne sauront jamais ce qu’est devenu le Nautilus, peut-être englouti dans un maelstrom.",
 				"Gründ", 32.70, 2002, 03, 22);
 
-		Users users = libraryImpl.getUsers();
-
-		UserImpl user = new UserImpl("holyhope", "email.test@domain.com", "user");
-		users.register(user, "AZERTY");
-		users.grantPermission(user, Permission.REMOVE_BOOK);
 		assertFalse(libraryImpl.addBook(book, user));
 
 		try {
@@ -75,7 +75,8 @@ public class LibraryTest {
 
 	@Test
 	public void testDeleteBook() throws RemoteException {
-		LibraryImpl libraryImpl = new LibraryImpl();
+		Users users = new Users();
+		LibraryImpl libraryImpl = new LibraryImpl(users);
 		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique. L'animal, rapide, fusiforme et phosphorescent, est responsable de plusieurs naufrages, brisant le bois des navires avec une force colossale. De retour d'une expédition dans le Nebraska, Pierre Aronnax, professeur suppléant au Muséum d'histoire naturelle de Paris, émet l'hypothèse d'un narval géant. "
 						+ "Les compagnies d'assurances maritimes menacent d'augmenter leurs prix et demandent que le monstre soit éliminé. Une grande chasse est alors organisée à bord de l’Abraham-Lincoln, fleuron de la marine américaine, mené par le commandant Farragut. Aronnax reçoit une lettre du secrétaire de la Marine lui demandant de rejoindre l’expédition pour représenter la France. Le scientifique embarque avec son fidèle domestique flamand, Conseil. A bord, ils font la connaissance de Ned Land, harponneur originaire de Québec. Après des mois de navigation, la confrontation avec le monstre a enfin lieu, et l'’Abraham-Lincoln est endommagé. Un choc entre le monstre et la frégate projette Aronnax, Conseil et Ned par dessus bord. Ils échouent finalement sur le dos du monstre, qui n'est autre qu'un sous-marin en tôle armée. Les naufragés sont faits prisonniers et se retrouvent à bord du mystérieux appareil. Ils font alors connaissance du capitaine Nemo, qui refuse de leur rendre la liberté. "
@@ -84,8 +85,6 @@ public class LibraryTest {
 						+ "« Je suis le droit, je suis la justice ! me dit-il. Je suis l’opprimé, et voilà l’oppresseur ! C’est par lui que tout ce que j’ai aimé, chéri, vénéré, patrie, femme, enfants, mon père, ma mère, j’ai vu tout périr ! Tout ce que je hais est là2 ! ». "
 						+ "Aronnax, Ned et Conseil parviennent à s’échapper. Ils s’embarquent à bord d'une chaloupe et accosteront sur une des îles Lofoten. Ils ne sauront jamais ce qu’est devenu le Nautilus, peut-être englouti dans un maelstrom.",
 				"Gründ", 32.70, 2002, 03, 22);
-
-		Users users = libraryImpl.getUsers();
 
 		UserImpl userTeacher = new UserImpl("holyhope", "email.test@domain.com", "teacher");
 		users.register(userTeacher, "AZERTY");
@@ -135,7 +134,8 @@ public class LibraryTest {
 
 	@Test
 	public void testIsBookAvailable() throws RemoteException {
-		LibraryImpl libraryImpl = new LibraryImpl();
+		Users users = new Users();
+		LibraryImpl libraryImpl = new LibraryImpl(users);
 
 		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique. L'animal, rapide, fusiforme et phosphorescent, est responsable de plusieurs naufrages, brisant le bois des navires avec une force colossale. De retour d'une expédition dans le Nebraska, Pierre Aronnax, professeur suppléant au Muséum d'histoire naturelle de Paris, émet l'hypothèse d'un narval géant. "
@@ -145,8 +145,6 @@ public class LibraryTest {
 						+ "« Je suis le droit, je suis la justice ! me dit-il. Je suis l’opprimé, et voilà l’oppresseur ! C’est par lui que tout ce que j’ai aimé, chéri, vénéré, patrie, femme, enfants, mon père, ma mère, j’ai vu tout périr ! Tout ce que je hais est là2 ! ». "
 						+ "Aronnax, Ned et Conseil parviennent à s’échapper. Ils s’embarquent à bord d'une chaloupe et accosteront sur une des îles Lofoten. Ils ne sauront jamais ce qu’est devenu le Nautilus, peut-être englouti dans un maelstrom.",
 				"Gründ", 32.70, 2002, 03, 22);
-
-		Users users = libraryImpl.getUsers();
 
 		UserImpl user = new UserImpl("holyhope", "email.test@domain.com", "teacher");
 		users.register(user, "AZERTY");
@@ -179,7 +177,8 @@ public class LibraryTest {
 
 	@Test
 	public void testGetBook() throws RemoteException {
-		LibraryImpl libraryImpl = new LibraryImpl();
+		Users users = new Users();
+		LibraryImpl libraryImpl = new LibraryImpl(users);
 
 		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique. L'animal, rapide, fusiforme et phosphorescent, est responsable de plusieurs naufrages, brisant le bois des navires avec une force colossale. De retour d'une expédition dans le Nebraska, Pierre Aronnax, professeur suppléant au Muséum d'histoire naturelle de Paris, émet l'hypothèse d'un narval géant. "
@@ -189,8 +188,6 @@ public class LibraryTest {
 						+ "« Je suis le droit, je suis la justice ! me dit-il. Je suis l’opprimé, et voilà l’oppresseur ! C’est par lui que tout ce que j’ai aimé, chéri, vénéré, patrie, femme, enfants, mon père, ma mère, j’ai vu tout périr ! Tout ce que je hais est là2 ! ». "
 						+ "Aronnax, Ned et Conseil parviennent à s’échapper. Ils s’embarquent à bord d'une chaloupe et accosteront sur une des îles Lofoten. Ils ne sauront jamais ce qu’est devenu le Nautilus, peut-être englouti dans un maelstrom.",
 				"Gründ", 32.70, 2002, 03, 22);
-
-		Users users = libraryImpl.getUsers();
 
 		UserImpl user = new UserImpl("holyhope", "email.test@domain.com", "teacher");
 		users.register(user, "AZERTY");
@@ -231,12 +228,13 @@ public class LibraryTest {
 
 	@Test
 	public void testRestoreBook() throws RemoteException {
-		LibraryImpl libraryImpl = new LibraryImpl();
+		Users users = new Users();
+		LibraryImpl libraryImpl = new LibraryImpl(users);
 
 		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
-		Users users = libraryImpl.getUsers();
+		
 		UserImpl user = new UserImpl("Borrower", "Borrower@test.com", "user");
 		users.register(user, "123456");
 		users.grantPermission(user, Permission.ADD_BOOK);
@@ -282,12 +280,13 @@ public class LibraryTest {
 
 	@Test
 	public void testSubscribeToWaitingList() throws RemoteException {
-		LibraryImpl libraryImpl = new LibraryImpl();
+		Users users = new Users();
+		LibraryImpl libraryImpl = new LibraryImpl(users);
 
 		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
-		Users users = libraryImpl.getUsers();
+		
 		UserImpl user = new UserImpl("Borrower", "b@test.fr", "teacher");
 		users.register(user, "123456");
 		users.grantPermission(user, Permission.ADD_BOOK);
@@ -330,12 +329,13 @@ public class LibraryTest {
 
 	@Test
 	public void testUnsubscribeToWaitingList() throws RemoteException {
-		LibraryImpl libraryImpl = new LibraryImpl();
+		Users users = new Users();
+		LibraryImpl libraryImpl = new LibraryImpl(users);
 
 		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
-		Users users = libraryImpl.getUsers();
+		
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
 		users.register(user, "AZERTY");
 		users.grantPermission(user, Permission.ADD_BOOK);
@@ -388,7 +388,8 @@ public class LibraryTest {
 
 	@Test
 	public void testSearchByBarCode() throws RemoteException {
-		LibraryImpl libraryImpl = new LibraryImpl();
+		Users users = new Users();
+		LibraryImpl libraryImpl = new LibraryImpl(users);
 
 		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
@@ -397,7 +398,6 @@ public class LibraryTest {
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
 
-		Users users = libraryImpl.getUsers();
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
 		users.register(user, "AZERTY");
 		users.grantPermission(user, Permission.ADD_BOOK);
@@ -419,7 +419,8 @@ public class LibraryTest {
 
 	@Test
 	public void testSearchByISBN() throws RemoteException {
-		LibraryImpl libraryImpl = new LibraryImpl();
+		Users users = new Users();
+		LibraryImpl libraryImpl = new LibraryImpl(users);
 
 		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
@@ -430,7 +431,7 @@ public class LibraryTest {
 		BookImpl book3 = new BookImpl(1L, 3L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
-		Users users = libraryImpl.getUsers();
+		
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
 		users.register(user, "AZERTY");
 		users.grantPermission(user, Permission.ADD_BOOK);
@@ -462,7 +463,8 @@ public class LibraryTest {
 
 	@Test
 	public void testSearchByTitle() throws RemoteException {
-		LibraryImpl libraryImpl = new LibraryImpl();
+		Users users = new Users();
+		LibraryImpl libraryImpl = new LibraryImpl(users);
 
 		BookImpl book = new BookImpl(1L, 1L, "Dix", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
@@ -473,7 +475,7 @@ public class LibraryTest {
 		BookImpl book3 = new BookImpl(1L, 3L, "Dx-sept", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
-		Users users = libraryImpl.getUsers();
+		
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
 		users.register(user, "AZERTY");
 		users.grantPermission(user, Permission.ADD_BOOK);
@@ -504,7 +506,8 @@ public class LibraryTest {
 
 	@Test
 	public void testSearchByAuthor() throws RemoteException {
-		LibraryImpl libraryImpl = new LibraryImpl();
+		Users users = new Users();
+		LibraryImpl libraryImpl = new LibraryImpl(users);
 
 		BookImpl book = new BookImpl(1L, 1L, "Dix", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
@@ -515,7 +518,7 @@ public class LibraryTest {
 		BookImpl book3 = new BookImpl(1L, 3L, "Dx-sept", "Julis Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
-		Users users = libraryImpl.getUsers();
+
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
 		users.register(user, "AZERTY");
 		users.grantPermission(user, Permission.ADD_BOOK);
@@ -546,12 +549,13 @@ public class LibraryTest {
 
 	@Test
 	public void testIsBuyable() throws RemoteException {
-		LibraryImpl libraryImpl = new LibraryImpl();
+		Users users = new Users();
+		LibraryImpl libraryImpl = new LibraryImpl(users);
 
 		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
-		Users users = libraryImpl.getUsers();
+
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
 		users.register(user, "AZERTY");
 		users.grantPermission(user, Permission.ADD_BOOK);
@@ -576,12 +580,13 @@ public class LibraryTest {
 
 	@Test
 	public void testBuyBook() throws RemoteException {
-		LibraryImpl libraryImpl = new LibraryImpl();
+		Users users = new Users();
+		LibraryImpl libraryImpl = new LibraryImpl(users);
 
 		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
-		Users users = libraryImpl.getUsers();
+
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
 		users.register(user, "AZERTY");
 		users.grantPermission(user, Permission.ADD_BOOK);
@@ -617,12 +622,13 @@ public class LibraryTest {
 
 	@Test
 	public void testGetCost() throws RemoteException {
-		LibraryImpl libraryImpl = new LibraryImpl();
+		Users users = new Users();
+		LibraryImpl libraryImpl = new LibraryImpl(users);
 
 		BookImpl book = new BookImpl(1L, 1L, "Vingt mille lieues sous les mers", "Jules Verne",
 				"L'apparition d'une bête monstrueuse en 1866 aux quatre coins des mers défraie la chronique.", "Gründ",
 				32.70, 2002, 03, 22);
-		Users users = libraryImpl.getUsers();
+
 		UserImpl user = new UserImpl("max", "max@test.fr", "user");
 		users.register(user, "AZERTY");
 		users.grantPermission(user, Permission.ADD_BOOK);
