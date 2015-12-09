@@ -286,8 +286,15 @@ public class BiblioGUI implements Observer {
 
 	@Override
 	public void alert(Notification notification) throws RemoteException {
-		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(frame, notification.getMessage())) {
-			user.consumeNotification(notification);
+		Book book = notification.getBook();
+		int response = JOptionPane.showConfirmDialog(frame,
+				book.getTitle() + " est disponible.\nVoulez-vous le réserver ?");
+		switch (response) {
+			case JOptionPane.YES_OPTION:
+				library.getBook(book, user);
+			case JOptionPane.NO_OPTION:
+				user.consumeNotification(notification);
+				break;
 		}
 	}
 }
