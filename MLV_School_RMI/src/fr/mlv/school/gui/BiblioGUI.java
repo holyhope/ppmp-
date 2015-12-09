@@ -23,8 +23,10 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDesktopPane;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -36,9 +38,11 @@ import javax.swing.table.TableColumn;
 
 import fr.mlv.school.Book;
 import fr.mlv.school.Library;
+import fr.mlv.school.Notification;
+import fr.mlv.school.Observer;
 import fr.mlv.school.User;
 
-public class BiblioGUI {
+public class BiblioGUI implements Observer {
 	private final JFrame						   frame	 = new JFrame();
 	private final JTextField					   textField = new JTextField();;
 	private final Library						   library;
@@ -83,6 +87,8 @@ public class BiblioGUI {
 	 */
 	public static BiblioGUI construct(Library library, User user) throws RemoteException {
 		BiblioGUI biblioGUI = new BiblioGUI(library, user);
+
+		user.addObserver(biblioGUI);
 
 		int frameWidth = 900;
 		int frameHeight = 600;
@@ -276,5 +282,10 @@ public class BiblioGUI {
 
 	public void addCloseListener(Consumer<WindowEvent> consumer) {
 		consumers.add(consumer);
+	}
+
+	@Override
+	public void alert(Notification notification) throws RemoteException {
+		JOptionPane.showConfirmDialog(frame, notification.getMessage());
 	}
 }

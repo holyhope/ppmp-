@@ -12,7 +12,13 @@ public class NotificationImpl implements Notification {
 		this.user = Objects.requireNonNull(user);
 	}
 
+	@Override
 	public String getMessage() throws RemoteException {
 		return book.getTitle() + " est disponible";
+	}
+
+	@Override
+	public String getTitle() {
+		return "Nouvelle notification";
 	}
 }

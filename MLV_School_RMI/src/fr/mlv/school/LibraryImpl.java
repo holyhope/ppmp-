@@ -11,14 +11,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @SuppressWarnings("serial")
 public class LibraryImpl extends UnicastRemoteObject implements Library {
-	private final String												name			   = "MLV-School";
-	private final ConcurrentHashMap<Long, Book>							library			   = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<Long, User>							borrowers		   = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<Long, ArrayBlockingQueue<Observer>>	waitingList		   = new ConcurrentHashMap<>();
-	private final CopyOnWriteArrayList<History>							histories		   = new CopyOnWriteArrayList<>();
-	private final ConcurrentHashMap<Long, Long>							bookRegisteredTime = new ConcurrentHashMap<>();
+	private final String											name			   = "MLV-School";
+	private final ConcurrentHashMap<Long, Book>						library			   = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Long, User>						borrowers		   = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Long, ArrayBlockingQueue<User>>	waitingList		   = new ConcurrentHashMap<>();
+	private final CopyOnWriteArrayList<History>						histories		   = new CopyOnWriteArrayList<>();
+	private final ConcurrentHashMap<Long, Long>						bookRegisteredTime = new ConcurrentHashMap<>();
 
-	private final Users													users;
+	private final Users												users;
 
 	public LibraryImpl(Users users) throws RemoteException {
 		this.users = Objects.requireNonNull(users);
@@ -100,7 +100,7 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		checkValidUser(user);
 		if (borrowers.get(book) != null && borrowers.get(book).equals(user) && borrowers.remove(book) != null) {
 			histories.add(new History(book, user, 2));
-			ArrayBlockingQueue<Observer> observers = waitingList.get(book);
+			ArrayBlockingQueue<User> observers = waitingList.get(book);
 			if (observers != null) {
 				observers.poll().addNotification(new NotificationImpl(book, user));
 				waitingList.put(book.getISBN(), observers);
@@ -115,11 +115,10 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		checkValidBook(book);
 		checkValidUser(user);
 		if (borrowers.get(book) != null) {
-			ArrayBlockingQueue<Observer> usersWaiting = waitingList.getOrDefault(book,
-					new ArrayBlockingQueue<Observer>(3));
+			ArrayBlockingQueue<User> usersWaiting = waitingList.getOrDefault(book, new ArrayBlockingQueue<User>(3));
 
 			try {
-				usersWaiting.add((Observer) user);
+				usersWaiting.add(user);
 			} catch (IllegalStateException ise) {
 				return false;
 			}
@@ -136,7 +135,7 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	public boolean unsubscribeToWaitingList(Book book, User user) throws RemoteException {
 		checkValidBook(book);
 		checkValidUser(user);
-		ArrayBlockingQueue<Observer> usersWaiting = waitingList.get(book);
+		ArrayBlockingQueue<User> usersWaiting = waitingList.get(book);
 		if (usersWaiting != null) {
 			if (usersWaiting.remove(user)) {
 
