@@ -4,6 +4,21 @@
 Built on Apr 22, 2006 (06:55:48 PDT)-->
  <wsdl:types>
   <schema elementFormDefault="qualified" targetNamespace="http://DefaultNamespace" xmlns="http://www.w3.org/2001/XMLSchema">
+   <element name="printBalance">
+    <complexType>
+     <sequence>
+      <element name="id" type="xsd:long"/>
+      <element name="currency" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="printBalanceResponse">
+    <complexType>
+     <sequence>
+      <element name="printBalanceReturn" type="xsd:double"/>
+     </sequence>
+    </complexType>
+   </element>
    <element name="removeMoney">
     <complexType>
      <sequence>
@@ -43,6 +58,22 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
   </schema>
  </wsdl:types>
 
+   <wsdl:message name="printBalanceRequest">
+
+      <wsdl:part element="impl:printBalance" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="printBalanceResponse">
+
+      <wsdl:part element="impl:printBalanceResponse" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
    <wsdl:message name="depositMoneyResponse">
 
       <wsdl:part element="impl:depositMoneyResponse" name="parameters">
@@ -77,6 +108,18 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
    <wsdl:portType name="BankManager">
 
+      <wsdl:operation name="printBalance">
+
+         <wsdl:input message="impl:printBalanceRequest" name="printBalanceRequest">
+
+       </wsdl:input>
+
+         <wsdl:output message="impl:printBalanceResponse" name="printBalanceResponse">
+
+       </wsdl:output>
+
+      </wsdl:operation>
+
       <wsdl:operation name="removeMoney">
 
          <wsdl:input message="impl:removeMoneyRequest" name="removeMoneyRequest">
@@ -106,6 +149,24 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
    <wsdl:binding name="BankManagerSoapBinding" type="impl:BankManager">
 
       <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="printBalance">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="printBalanceRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="printBalanceResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
 
       <wsdl:operation name="removeMoney">
 

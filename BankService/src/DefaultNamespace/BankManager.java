@@ -77,7 +77,11 @@ public class BankManager {
 		}
 		
 		return current.removeMoney(amount);
-			
+	}
+	
+	public double printBalance(long id,String currency){
+		BankAccount current=accounts.get(id);
+		return current.getBalance();		
 	}
 	
 }
