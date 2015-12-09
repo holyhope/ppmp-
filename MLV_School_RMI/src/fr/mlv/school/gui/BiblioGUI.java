@@ -286,6 +286,8 @@ public class BiblioGUI implements Observer {
 
 	@Override
 	public void alert(Notification notification) throws RemoteException {
-		JOptionPane.showConfirmDialog(frame, notification.getMessage());
+		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(frame, notification.getMessage())) {
+			user.consumeNotification(notification);
+		}
 	}
 }
