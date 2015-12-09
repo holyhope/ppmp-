@@ -162,7 +162,8 @@ public class BiblioGUI implements Observer {
 
 		JButton btnPanier = new JButton("Mon panier");
 		btnPanier.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent event) {
+				biblioGUI.panierGUI.show();
 			}
 		});
 		GridBagConstraints gbc_btnPanier = new GridBagConstraints();
@@ -246,6 +247,7 @@ public class BiblioGUI implements Observer {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
+				biblioGUI.panierGUI.close();
 				biblioGUI.consumers.parallelStream().forEach(consumer -> consumer.accept(e));
 			}
 
