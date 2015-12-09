@@ -3,6 +3,7 @@ package fr.mlv.school;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
+import java.util.function.Consumer;
 
 public interface User extends Remote {
 	public String getEmail() throws RemoteException;
@@ -19,5 +20,5 @@ public interface User extends Remote {
 
 	public boolean consumeNotification(Notification notification) throws RemoteException;
 
-	public boolean addObserver(Observer observer) throws RemoteException;
+	public boolean addObserver(Consumer<Notification> consumer) throws RemoteException;
 }

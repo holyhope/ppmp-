@@ -6,19 +6,20 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public class UserImpl extends UnicastRemoteObject implements User {
-	private static final long		serialVersionUID = 1L;
-	private static final Pattern	emailValidator	 = Pattern.compile("^.+@.+\\..+$");
+	private static final long				  serialVersionUID = 1L;
+	private static final Pattern			  emailValidator   = Pattern.compile("^.+@.+\\..+$");
 
-	private final String			userName;
-	private final String			email;
-	private final String			role;
+	private final String					  userName;
+	private final String					  email;
+	private final String					  role;
 
-	private ArrayList<Notification>	notifications	 = new ArrayList<>();
+	private ArrayList<Notification>			  notifications	   = new ArrayList<>();
 
-	private ArrayList<Observer>		observers;
+	private ArrayList<Consumer<Notification>> observers;
 
 	public UserImpl(String userName, String email, String role) throws RemoteException {
 		if (userName == null || userName.length() == 0) {
@@ -76,13 +77,7 @@ public class UserImpl extends UnicastRemoteObject implements User {
 		if (!success) {
 			return false;
 		}
-		observers.parallelStream().forEach(o -> {
-			try {
-				o.alert(notification);
-			} catch (RemoteException e) {
-				// Nothing to do, oberver is not accessible.
-			}
-		});
+		observers.parallelStream().forEach(o -> o.accept(notification));
 		return true;
 	}
 
@@ -92,7 +87,7 @@ public class UserImpl extends UnicastRemoteObject implements User {
 	}
 
 	@Override
-	public boolean addObserver(Observer observer) throws RemoteException {
-		return observers.add(Objects.requireNonNull(observer));
+	public boolean addObserver(Consumer<Notification> consumer) throws RemoteException {
+		return observers.add(Objects.requireNonNull(consumer));
 	}
 }

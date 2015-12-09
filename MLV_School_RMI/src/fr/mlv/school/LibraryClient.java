@@ -21,9 +21,7 @@ public class LibraryClient {
 			try {
 				ConnexionGUI connexionGUI = ConnexionGUI.construct(library);
 				connexionGUI.addConnectedListener(user -> {
-					BiblioGUI biblioGUI;
-					try {
-						biblioGUI = BiblioGUI.construct(library, user);
+					try (BiblioGUI biblioGUI = BiblioGUI.construct(library, user)) {
 						biblioGUI.addCloseListener(event -> {
 							try {
 								library.disconnect(user);
@@ -31,7 +29,6 @@ public class LibraryClient {
 								e.printStackTrace(System.err);
 							}
 						});
-						connexionGUI.close();
 					} catch (Exception e) {
 						e.printStackTrace(System.err);
 					}

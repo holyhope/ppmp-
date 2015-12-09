@@ -2,7 +2,6 @@ package fr.mlv.school.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.rmi.RemoteException;
 import java.util.Vector;
 
@@ -19,22 +18,6 @@ public class PanierGUI {
 	private final JFrame				 frame	 = new JFrame();
 
 	private final Vector<Vector<Object>> content = new Vector<>();
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					PanierGUI window = new PanierGUI();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	/**
 	 * Create the application.

@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.Closeable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -38,10 +39,9 @@ import javax.swing.table.TableColumn;
 import fr.mlv.school.Book;
 import fr.mlv.school.Library;
 import fr.mlv.school.Notification;
-import fr.mlv.school.Observer;
 import fr.mlv.school.User;
 
-public class BiblioGUI implements Observer {
+public class BiblioGUI implements Closeable {
 	private final JFrame						   frame	 = new JFrame();
 	private final JTextField					   textField = new JTextField();;
 	private final Library						   library;
@@ -75,7 +75,26 @@ public class BiblioGUI implements Observer {
 		PanierGUI panierGUI = PanierGUI.construct();
 		BiblioGUI biblioGUI = new BiblioGUI(library, user, panierGUI);
 
-		user.addObserver(biblioGUI);
+		user.addObserver(new Consumer<Notification>() {
+			@Override
+			public void accept(Notification notification) {
+				try {
+					Book book = notification.getBook();
+					int response = JOptionPane.showConfirmDialog(biblioGUI.frame,
+							book.getTitle() + " est disponible.\nVoulez-vous le réserver ?");
+					switch (response) {
+						case JOptionPane.YES_OPTION:
+							library.getBook(book, user);
+						case JOptionPane.NO_OPTION:
+							user.consumeNotification(notification);
+							break;
+					}
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace(System.err);
+				}
+			}
+		});
 
 		int frameWidth = 900;
 		int frameHeight = 600;
@@ -264,25 +283,12 @@ public class BiblioGUI implements Observer {
 		return biblioGUI;
 	}
 
+	@Override
 	public void close() {
 		frame.dispose();
 	}
 
 	public void addCloseListener(Consumer<WindowEvent> consumer) {
 		consumers.add(consumer);
-	}
-
-	@Override
-	public void alert(Notification notification) throws RemoteException {
-		Book book = notification.getBook();
-		int response = JOptionPane.showConfirmDialog(frame,
-				book.getTitle() + " est disponible.\nVoulez-vous le réserver ?");
-		switch (response) {
-			case JOptionPane.YES_OPTION:
-				library.getBook(book, user);
-			case JOptionPane.NO_OPTION:
-				user.consumeNotification(notification);
-				break;
-		}
 	}
 }
