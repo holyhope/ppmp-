@@ -198,10 +198,10 @@ public class BiblioGUI {
 		JButton btnFindBook = new JButton("Rechercher");
 		btnFindBook.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				Book[] books;
 				try {
-					books = library.searchByTitle(biblioGUI.textField.getText());
+					Book[] books = library.searchByTitle(biblioGUI.textField.getText());
 					ArrayList<Number> isbns = new ArrayList<>();
+					Vector<Vector<Object>> newData = new Vector<>(books.length);
 
 					for (Book book : books) {
 						if (!isbns.contains(book.getISBN())) {
@@ -212,9 +212,11 @@ public class BiblioGUI {
 							vectorBook.addElement(book.getSummary());
 							vectorBook.addElement(book.getPublisher());
 							vectorBook.addElement("Ajouter au panier");
-							data.addElement(vectorBook);
+							newData.addElement(vectorBook);
 						}
 					}
+					data.removeAllElements();
+					data.addAll(newData);
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace(System.err);
