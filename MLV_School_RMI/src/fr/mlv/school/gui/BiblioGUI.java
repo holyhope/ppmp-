@@ -23,7 +23,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDesktopPane;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -49,22 +48,7 @@ public class BiblioGUI implements Observer {
 	private final User							   user;
 
 	private final ArrayList<Consumer<WindowEvent>> consumers = new ArrayList<>();
-
-	/**
-	 * Launch the application.
-	 */
-	// public static void main(String[] args) {
-	// EventQueue.invokeLater(new Runnable() {
-	// public void run() {
-	// try {
-	// BiblioGUI window = new BiblioGUI();
-	// window.frame.setVisible(true);
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// }
-	// });
-	// }
+	private final PanierGUI						   panierGUI;
 
 	/**
 	 * Create the application.
@@ -72,12 +56,14 @@ public class BiblioGUI implements Observer {
 	 * @param library
 	 * 
 	 * @param user
+	 * @param panierGUI
 	 * 
 	 * @throws RemoteException
 	 */
-	public BiblioGUI(Library library, User user) {
+	public BiblioGUI(Library library, User user, PanierGUI panierGUI) {
 		this.library = library;
 		this.user = user;
+		this.panierGUI = panierGUI;
 	}
 
 	/**
@@ -86,7 +72,8 @@ public class BiblioGUI implements Observer {
 	 * @throws RemoteException
 	 */
 	public static BiblioGUI construct(Library library, User user) throws RemoteException {
-		BiblioGUI biblioGUI = new BiblioGUI(library, user);
+		PanierGUI panierGUI = PanierGUI.construct();
+		BiblioGUI biblioGUI = new BiblioGUI(library, user, panierGUI);
 
 		user.addObserver(biblioGUI);
 
@@ -175,8 +162,8 @@ public class BiblioGUI implements Observer {
 
 		JButton btnPanier = new JButton("Mon panier");
 		btnPanier.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				PanierGUI panierGUI = new PanierGUI();
+			public void actionPerformed(ActionEvent event) {
+				biblioGUI.panierGUI.show();
 			}
 		});
 		GridBagConstraints gbc_btnPanier = new GridBagConstraints();
@@ -260,6 +247,7 @@ public class BiblioGUI implements Observer {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
+				biblioGUI.panierGUI.close();
 				biblioGUI.consumers.parallelStream().forEach(consumer -> consumer.accept(e));
 			}
 
@@ -286,8 +274,15 @@ public class BiblioGUI implements Observer {
 
 	@Override
 	public void alert(Notification notification) throws RemoteException {
-		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(frame, notification.getMessage())) {
-			user.consumeNotification(notification);
+		Book book = notification.getBook();
+		int response = JOptionPane.showConfirmDialog(frame,
+				book.getTitle() + " est disponible.\nVoulez-vous le réserver ?");
+		switch (response) {
+			case JOptionPane.YES_OPTION:
+				library.getBook(book, user);
+			case JOptionPane.NO_OPTION:
+				user.consumeNotification(notification);
+				break;
 		}
 	}
 }

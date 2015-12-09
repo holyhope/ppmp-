@@ -6,5 +6,7 @@ import java.rmi.RemoteException;
 public interface Notification extends Remote {
 	public String getMessage() throws RemoteException;
 
-	public String getTitle();
+	public String getTitle() throws RemoteException;
+
+	public Book getBook() throws RemoteException;
 }

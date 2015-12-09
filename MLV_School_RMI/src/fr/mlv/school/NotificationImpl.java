@@ -21,4 +21,9 @@ public class NotificationImpl implements Notification {
 	public String getTitle() {
 		return "Nouvelle notification";
 	}
+
+	@Override
+	public Book getBook() throws RemoteException {
+		return book;
+	}
 }
