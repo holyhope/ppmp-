@@ -5,7 +5,6 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -86,6 +85,7 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	public boolean getBook(Book book, User user) throws RemoteException {
 		checkValidBook(book);
 		checkValidUser(user);
+		
 		if (borrowers.get(book) == null) {
 			histories.add(new History(book, user, 1));
 			borrowers.put(book, user);
@@ -251,36 +251,6 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	@Override
 	public boolean isRegistered(User user) throws RemoteException {
 		return users.isRegistered(user);
-	}
-
-	@Override
-	public boolean register(User currentUser, User user, String password) throws RemoteException {
-		return users.register(user, password);
-	}
-
-	@Override
-	public boolean grantPermission(User currentUser, User user, Permission permission) throws RemoteException {
-		return users.grantPermission(user, permission);
-	}
-
-	@Override
-	public boolean revokePermission(User currentUser, User user, Permission permission) throws RemoteException {
-		return users.revokePermission(user, permission);
-	}
-
-	@Override
-	public boolean userCan(User currentUser, User user, Permission permission) throws RemoteException {
-		return users.userCan(user, permission);
-	}
-
-	@Override
-	public Set<User> getPermitedUsers(User currentUser, Permission permission) throws RemoteException {
-		return users.getPermitedUsers(permission);
-	}
-
-	@Override
-	public Set<Permission> getUserPermissions(User currentUser, User user) throws RemoteException {
-		return users.getUserPermissions(user);
 	}
 
 	@Override
