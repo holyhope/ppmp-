@@ -29,22 +29,6 @@ public class ConnexionGUI {
 	private final ArrayList<Consumer<User>>	consumers	  = new ArrayList<>();
 
 	/**
-	 * Launch the application.
-	 */
-	// public static void main(String[] args) {
-	// EventQueue.invokeLater(new Runnable() {
-	// public void run() {
-	// try {
-	// ConnexionGUI window = new ConnexionGUI();
-	// window.frame.setVisible(true);
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// }
-	// });
-	// }
-
-	/**
 	 * Create the application.
 	 */
 	private ConnexionGUI(Library library) {

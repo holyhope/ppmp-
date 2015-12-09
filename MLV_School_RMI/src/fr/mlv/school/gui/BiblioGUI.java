@@ -75,6 +75,7 @@ public class BiblioGUI implements Closeable {
 		PanierGUI panierGUI = PanierGUI.construct();
 		BiblioGUI biblioGUI = new BiblioGUI(library, user, panierGUI);
 
+		// TODO Error occured here
 		user.addObserver(new Consumer<Notification>() {
 			@Override
 			public void accept(Notification notification) {
