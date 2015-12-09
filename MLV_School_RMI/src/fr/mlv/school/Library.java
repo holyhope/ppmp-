@@ -48,18 +48,6 @@ public interface Library extends Remote {
 
 	public boolean isRegistered(User user) throws RemoteException;
 
-	public boolean register(User currentUser, User user, String password) throws RemoteException;
-
-	public boolean grantPermission(User currentUser, User user, Permission permission) throws RemoteException;
-
-	public boolean revokePermission(User currentUser, User user, Permission permission) throws RemoteException;
-
-	public boolean userCan(User currentUser, User user, Permission permission) throws RemoteException;
-
-	public Set<User> getPermitedUsers(User currentUser, Permission permission) throws RemoteException;
-
-	public Set<Permission> getUserPermissions(User currentUser, User user) throws RemoteException;
-
 	public void disconnect(User user) throws RemoteException;
 
 }

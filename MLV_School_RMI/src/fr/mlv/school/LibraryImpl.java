@@ -5,21 +5,20 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @SuppressWarnings("serial")
 public class LibraryImpl extends UnicastRemoteObject implements Library {
-	private final String												name			   = "MLV-School";
-	private final ConcurrentHashMap<Long, Book>							library			   = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<Book, User>							borrowers		   = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<Book, ArrayBlockingQueue<Observer>>	waitingList		   = new ConcurrentHashMap<>();
-	private final CopyOnWriteArrayList<History>							histories		   = new CopyOnWriteArrayList<>();
-	private final ConcurrentHashMap<Long, Long>							bookRegisteredTime = new ConcurrentHashMap<>();
+	private final String											name			   = "MLV-School";
+	private final ConcurrentHashMap<Long, Book>						library			   = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Long, User>						borrowers		   = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Long, ArrayBlockingQueue<User>>	waitingList		   = new ConcurrentHashMap<>();
+	private final CopyOnWriteArrayList<History>						histories		   = new CopyOnWriteArrayList<>();
+	private final ConcurrentHashMap<Long, Long>						bookRegisteredTime = new ConcurrentHashMap<>();
 
-	private final Users													users;
+	private final Users												users;
 
 	public LibraryImpl(Users users) throws RemoteException {
 		this.users = Objects.requireNonNull(users);
@@ -34,23 +33,23 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 			throw new IllegalArgumentException("Book is not Valid");
 		}
 		checkValidUser(user);
-		if (users.userCan(user, Permission.ADD_BOOK)) {
-			bookRegisteredTime.put(book.getBarCode(), System.currentTimeMillis());
-			library.put(book.getBarCode(), book);
-			return true;
+		if (!users.userCan(user, Permission.ADD_BOOK)) {
+			throw new IllegalArgumentException("User is not allowed");
 		}
-		return false;
+		bookRegisteredTime.put(book.getBarCode(), System.currentTimeMillis());
+		library.put(book.getBarCode(), book);
+		return true;
 	}
 
 	public boolean deleteBook(Book book, User user) throws RemoteException {
 		checkValidBook(book);
 		checkValidUser(user);
-		if (users.userCan(user, Permission.REMOVE_BOOK)) {
-			library.remove(book.getBarCode());
-			bookRegisteredTime.remove(book.getBarCode());
-			return true;
+		if (!users.userCan(user, Permission.REMOVE_BOOK)) {
+			throw new IllegalArgumentException("User is not allowed");
 		}
-		return false;
+		library.remove(book.getBarCode());
+		bookRegisteredTime.remove(book.getBarCode());
+		return true;
 	}
 
 	public boolean forceDeleteBook(Book book) throws RemoteException {
@@ -86,9 +85,10 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	public boolean getBook(Book book, User user) throws RemoteException {
 		checkValidBook(book);
 		checkValidUser(user);
+
 		if (borrowers.get(book) == null) {
 			histories.add(new History(book, user, 1));
-			borrowers.put(book, user);
+			borrowers.put(book.getBarCode(), user);
 			return true;
 		}
 
@@ -100,10 +100,10 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		checkValidUser(user);
 		if (borrowers.get(book) != null && borrowers.get(book).equals(user) && borrowers.remove(book) != null) {
 			histories.add(new History(book, user, 2));
-			ArrayBlockingQueue<Observer> observers = waitingList.get(book);
+			ArrayBlockingQueue<User> observers = waitingList.get(book);
 			if (observers != null) {
-				observers.poll().notifyObserver(book);
-				waitingList.put(book, observers);
+				observers.poll().addNotification(new NotificationImpl(book, user));
+				waitingList.put(book.getISBN(), observers);
 			}
 			return true;
 		}
@@ -115,15 +115,18 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		checkValidBook(book);
 		checkValidUser(user);
 		if (borrowers.get(book) != null) {
-			ArrayBlockingQueue<Observer> usersWaiting = waitingList.getOrDefault(book,
-					new ArrayBlockingQueue<Observer>(3));
+			ArrayBlockingQueue<User> usersWaiting = waitingList.getOrDefault(book, new ArrayBlockingQueue<User>(3));
 
 			try {
-				usersWaiting.add((Observer) user);
+				usersWaiting.add(user);
 			} catch (IllegalStateException ise) {
 				return false;
 			}
-			waitingList.put(book, usersWaiting);
+			waitingList.put(book.getISBN(), usersWaiting);// TODO Est-ce
+														  // nécessaire ? la
+														  // liste a été
+														  // modifée, la hashmap
+														  // aussi, non ?
 			return true;
 		}
 		return false;
@@ -132,10 +135,16 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	public boolean unsubscribeToWaitingList(Book book, User user) throws RemoteException {
 		checkValidBook(book);
 		checkValidUser(user);
-		ArrayBlockingQueue<Observer> usersWaiting = waitingList.get(book);
+		ArrayBlockingQueue<User> usersWaiting = waitingList.get(book);
 		if (usersWaiting != null) {
 			if (usersWaiting.remove(user)) {
-				waitingList.put(book, usersWaiting);
+
+				waitingList.put(book.getISBN(), usersWaiting);// TODO Est-ce
+															  // nécessaire ? la
+															  // liste a été
+															  // modifée, la
+															  // hashmap aussi,
+															  // non ?
 				return true;
 			}
 		}
@@ -251,36 +260,6 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	@Override
 	public boolean isRegistered(User user) throws RemoteException {
 		return users.isRegistered(user);
-	}
-
-	@Override
-	public boolean register(User currentUser, User user, String password) throws RemoteException {
-		return users.register(user, password);
-	}
-
-	@Override
-	public boolean grantPermission(User currentUser, User user, Permission permission) throws RemoteException {
-		return users.grantPermission(user, permission);
-	}
-
-	@Override
-	public boolean revokePermission(User currentUser, User user, Permission permission) throws RemoteException {
-		return users.revokePermission(user, permission);
-	}
-
-	@Override
-	public boolean userCan(User currentUser, User user, Permission permission) throws RemoteException {
-		return users.userCan(user, permission);
-	}
-
-	@Override
-	public Set<User> getPermitedUsers(User currentUser, Permission permission) throws RemoteException {
-		return users.getPermitedUsers(permission);
-	}
-
-	@Override
-	public Set<Permission> getUserPermissions(User currentUser, User user) throws RemoteException {
-		return users.getUserPermissions(user);
 	}
 
 	@Override

@@ -2,15 +2,23 @@ package fr.mlv.school;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
-public class UserImpl extends UnicastRemoteObject implements User, Observer {
-	private static final long	 serialVersionUID = 1L;
-	private static final Pattern emailValidator	  = Pattern.compile("^.+@.+\\..+$");
+public class UserImpl extends UnicastRemoteObject implements User {
+	private static final long		serialVersionUID = 1L;
+	private static final Pattern	emailValidator	 = Pattern.compile("^.+@.+\\..+$");
 
-	private final String		 userName;
-	private final String		 email;
-	private final String		 role;
+	private final String			userName;
+	private final String			email;
+	private final String			role;
+
+	private ArrayList<Notification>	notifications	 = new ArrayList<>();
+
+	private ArrayList<Observer>		observers;
 
 	public UserImpl(String userName, String email, String role) throws RemoteException {
 		if (userName == null || userName.length() == 0) {
@@ -58,8 +66,33 @@ public class UserImpl extends UnicastRemoteObject implements User, Observer {
 	}
 
 	@Override
-	public void notifyObserver(Book book) throws RemoteException {
-		System.out.println("Book Available to borrow !");
-		
+	public boolean consumeNotification(Notification notification) throws RemoteException {
+		return notifications.remove(Objects.requireNonNull(notification));
+	}
+
+	@Override
+	public boolean addNotification(Notification notification) throws RemoteException {
+		boolean success = notifications.add(Objects.requireNonNull(notification));
+		if (!success) {
+			return false;
+		}
+		observers.parallelStream().forEach(o -> {
+			try {
+				o.alert(notification);
+			} catch (RemoteException e) {
+				// Nothing to do, oberver is not accessible.
+			}
+		});
+		return true;
+	}
+
+	@Override
+	public List<Notification> getNotifications() throws RemoteException {
+		return new LinkedList<>(notifications);
+	}
+
+	@Override
+	public boolean addObserver(Observer observer) throws RemoteException {
+		return observers.add(Objects.requireNonNull(observer));
 	}
 }

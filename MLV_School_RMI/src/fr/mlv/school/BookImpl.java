@@ -57,7 +57,7 @@ public class BookImpl extends UnicastRemoteObject implements Book {
 		if (cost <= 0) {
 			throw new IllegalArgumentException("cost is not valid");
 		}
-		this.cost = cost;
+		this.cost = (int) (cost * 100) / 100.;
 
 		Calendar myCal = Calendar.getInstance();
 		myCal.set(Calendar.YEAR, yearPublish);

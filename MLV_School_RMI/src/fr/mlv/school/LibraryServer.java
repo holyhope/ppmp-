@@ -50,7 +50,7 @@ public class LibraryServer {
 	}
 
 	private static enum Command {
-		QUIT, HELP, ADDUSER, REMOVEUSER, ADDPERMISSION, REMOVEPERMISSION, SAVE, LISTUSERS, ADDBOOK, REMOVEBOOK, LOAD;
+		QUIT, HELP, ADDUSER, REMOVEUSER, ADDPERMISSION, REMOVEPERMISSION, SAVE, LISTUSERS, ADDBOOK, REMOVEBOOK, LOAD, LISTBOOKS;
 
 		public String toString() {
 			switch (this) {
@@ -64,6 +64,8 @@ public class LibraryServer {
 					return "addbook";
 				case REMOVEBOOK:
 					return "removebook";
+				case LISTBOOKS:
+					return "listbooks";
 				case ADDUSER:
 					return "adduser";
 				case REMOVEUSER:
@@ -89,12 +91,18 @@ public class LibraryServer {
 					return SAVE;
 				case "help":
 					return HELP;
+				case "addbook":
+					return ADDBOOK;
+				case "removebook":
+					return REMOVEBOOK;
+				case "listbooks":
+					return Command.LISTBOOKS;
 				case "adduser":
 					return ADDUSER;
 				case "removeuser":
 					return REMOVEUSER;
 				case "listusers":
-					return Command.LISTUSERS;
+					return LISTUSERS;
 				case "addpermission":
 					return ADDPERMISSION;
 				case "removepermission":
@@ -182,12 +190,29 @@ public class LibraryServer {
 							System.err.println("An error occured");
 						}
 						break;
+					case LISTBOOKS:
+						if (!listBooksCommand(out, scanner)) {
+							System.err.println("An error occured");
+						}
+						break;
 				}
 			} catch (Exception e) {
 				System.err.println("An error occured");
 				e.printStackTrace(System.err);
 			}
 		}
+	}
+
+	private boolean listBooksCommand(PrintStream out, Scanner scanner) throws RemoteException {
+		if (out == null) {
+			return false;
+		}
+		Book list[] = library.getAllBooks();
+		for (Book book : list) {
+			out.println(book.getBarCode() + "\t" + book.getTitle() + "\t" + book.getAuthor() + "\t" + book.getDate()
+					+ "\t" + book.getCost());
+		}
+		return true;
 	}
 
 	private boolean loadCommad(PrintStream out, Scanner scanner) throws IOException {
@@ -214,6 +239,7 @@ public class LibraryServer {
 			out.print("Code barre :");
 		}
 		Long barCode = scanner.nextLong();
+		scanner.nextLine(); // Flush line
 		return library.forceDeleteBook(library.searchByBarCode(barCode));
 	}
 
@@ -223,7 +249,7 @@ public class LibraryServer {
 		}
 		List<User> list = users.getUsersList();
 		for (User user : list) {
-			out.println(user.getUsername() + "\t" + user.getEmail() + "\t(" + user.getRole() + ")");
+			out.println(user.getUsername() + "\t" + user.getEmail() + "\t" + user.getRole());
 		}
 		return true;
 	}
@@ -301,50 +327,67 @@ public class LibraryServer {
 			out.print("Nom de l'utilisateur :");
 		}
 		String username = scanner.nextLine();
+		User user = users.findByUsername(username);
+		if (!users.isRegistered(user)) {
+			throw new IllegalStateException();
+		}
+
 		if (out != null) {
 			out.print("ISBN :");
 		}
 		Long isbn = scanner.nextLong();
+		scanner.nextLine(); // Flush line
+
 		if (out != null) {
 			out.print("Code bar :");
 		}
 		Long barCode = scanner.nextLong();
+		scanner.nextLine(); // Flush line
+
 		if (out != null) {
 			out.print("Titre :");
 		}
 		String title = scanner.nextLine();
+
 		if (out != null) {
 			out.print("Auteur :");
 		}
 		String author = scanner.nextLine();
+
 		if (out != null) {
 			out.print("Résumé :");
 		}
 		StringBuilder summaryBuilder = new StringBuilder();
-		boolean isFinished = false;
-		while (!isFinished) {
+		while (scanner.hasNextLine()) {
 			String nextLine = scanner.nextLine();
-			isFinished = nextLine.isEmpty();
-			summaryBuilder.append(nextLine);
+			if (nextLine.equals(".")) {
+				break;
+			}
+			summaryBuilder.append(nextLine + "\n");
 		}
 		String summary = summaryBuilder.toString();
+
 		if (out != null) {
-			out.print("Publisher :");
+			out.print("Éditeur :");
 		}
 		String publisher = scanner.nextLine();
+
 		if (out != null) {
 			out.print("Coût :");
 		}
 		float cost = scanner.nextFloat();
+		scanner.nextLine(); // Flush line
+
 		if (out != null) {
 			out.print("Date de publication (jj/mm/aaaa) :");
 		}
-		int dayPublish = scanner.nextInt();
-		int monthPublish = scanner.nextInt();
-		int yearPublish = scanner.nextInt();
+		String datePublish[] = scanner.nextLine().split("/");
+		int dayPublish = Integer.parseInt(datePublish[0]);
+		int monthPublish = Integer.parseInt(datePublish[1]);
+		int yearPublish = Integer.parseInt(datePublish[2]);
+
 		BookImpl book = new BookImpl(isbn, barCode, title, author, summary, publisher, cost, yearPublish, monthPublish,
 				dayPublish);
-		User user = users.findByUsername(username);
 
 		return library.addBook(book, user);
 	}
