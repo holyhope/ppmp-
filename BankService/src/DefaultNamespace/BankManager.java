@@ -79,9 +79,18 @@ public class BankManager {
 		return current.removeMoney(amount);
 	}
 	
-	public double printBalance(long id,String currency){
+	public double printBalance(long id,String currency) throws RemoteException, ServiceException{
 		BankAccount current=accounts.get(id);
-		return current.getBalance();		
+		
+		double balance = current.getBalance();
+		
+		if(currency!=current.getCurrency())
+		{
+		
+			Converter conv=new ConverterServiceLocator().getConverter();
+			balance = conv.convert(balance, currency, current.getCurrency());
+		}
+		return balance;	
 	}
 	
 }
