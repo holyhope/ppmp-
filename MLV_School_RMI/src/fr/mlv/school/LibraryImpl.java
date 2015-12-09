@@ -293,4 +293,8 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 	public Book searchByBarCode(Long barCode) {
 		return library.get(barCode);
 	}
+	
+	public Book[] getAllBooks() throws RemoteException {
+		return library.values().toArray(new Book[library.size()]);
+	}
 }

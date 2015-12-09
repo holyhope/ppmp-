@@ -39,6 +39,8 @@ public interface Library extends Remote {
 	boolean buyBook(Book book, User user) throws RemoteException;
 
 	double getCost(Book book) throws RemoteException;
+	
+	Book[] getAllBooks() throws RemoteException;
 
 	/**********/
 
