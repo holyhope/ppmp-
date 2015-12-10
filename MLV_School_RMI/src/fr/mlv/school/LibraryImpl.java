@@ -11,6 +11,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @SuppressWarnings("serial")
 public class LibraryImpl extends UnicastRemoteObject implements Library {
+	private static final int										WAITING_LIST_SIZE  = 3;
+
 	private final String											name			   = "MLV-School";
 
 	/**
@@ -103,7 +105,8 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 
 		synchronized (getBookLock) {
 			if (borrowers.get(book.getBarCode()) == null) {
-				ArrayBlockingQueue<User> waitingList = this.waitingList.get(book.getISBN());
+				ArrayBlockingQueue<User> waitingList = this.waitingList.getOrDefault(book.getISBN(),
+						new ArrayBlockingQueue<User>(WAITING_LIST_SIZE));
 				if (waitingList.isEmpty() || waitingList.peek().equals(user)) {
 					waitingList.poll();
 					histories.add(new History(book, user, 1));
@@ -138,7 +141,7 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		checkValidUser(user);
 		if (borrowers.get(book.getBarCode()) != null) {
 			ArrayBlockingQueue<User> usersWaiting = waitingList.getOrDefault(book.getISBN(),
-					new ArrayBlockingQueue<User>(3));
+					new ArrayBlockingQueue<User>(WAITING_LIST_SIZE));
 
 			try {
 				usersWaiting.add(user);
@@ -155,7 +158,7 @@ public class LibraryImpl extends UnicastRemoteObject implements Library {
 		checkValidBook(book);
 		checkValidUser(user);
 		ArrayBlockingQueue<User> usersWaiting = waitingList.getOrDefault(book.getISBN(),
-				new ArrayBlockingQueue<User>(3));
+				new ArrayBlockingQueue<User>(WAITING_LIST_SIZE));
 		if (usersWaiting != null) {
 			if (usersWaiting.remove(user)) {
 

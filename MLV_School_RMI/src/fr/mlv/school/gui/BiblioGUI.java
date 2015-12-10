@@ -15,6 +15,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Vector;
 import java.util.function.Consumer;
 
@@ -69,7 +70,19 @@ public class BiblioGUI {
 	 * @throws RemoteException
 	 */
 	public static BiblioGUI construct(Library library, User user) throws RemoteException {
-		PanierGUI panierGUI = PanierGUI.construct();
+		Vector<Vector<Object>> data = new Vector<>();
+		Vector<Object> headers = new Vector<>();
+		headers.addElement("Isbn");
+		headers.addElement("Title");
+		headers.addElement("Author");
+		headers.addElement("Publisher");
+		headers.addElement("");
+
+		DefaultTableModel tableModel = new DefaultTableModel(data, headers);
+		JTable table = new JTable(tableModel);
+		table.setRowSelectionAllowed(false);
+
+		PanierGUI panierGUI = PanierGUI.construct(data);
 		BiblioGUI biblioGUI = new BiblioGUI(library, user, panierGUI);
 
 		// TODO Error occured here
@@ -131,26 +144,11 @@ public class BiblioGUI {
 		scrollPane.getViewport().setBackground(myColor);
 		panelRight.add(scrollPane);
 
-		Vector<Vector<Object>> data = new Vector<>();
-		Vector<String> headers = new Vector<>();
-		headers.addElement("Isbn");
-		headers.addElement("Title");
-		headers.addElement("Author");
-		headers.addElement("Summary");
-		headers.addElement("Publisher");
-		headers.addElement("");
-		headers.addElement("");
-
-		DefaultTableModel model = new DefaultTableModel(data, headers);
-		JTable table = new JTable(model);
-		table.setRowSelectionAllowed(false);
-
-		ButtonEditor buttonAddPanier = new ButtonEditor(new JCheckBox());
-		buttonAddPanier.addTableModel(model);
+		BorrowButton borrowButton = BorrowButton.construct(user, library, new JCheckBox());
 
 		TableColumn columnKart = table.getColumn(headers.lastElement());
 		columnKart.setCellRenderer(new ButtonRenderer());
-		columnKart.setCellEditor(buttonAddPanier);
+		columnKart.setCellEditor(borrowButton);
 		scrollPane.setViewportView(table);
 
 		JDesktopPane desktopPaneLeft = new JDesktopPane();
@@ -162,25 +160,6 @@ public class BiblioGUI {
 		gbl_desktopPaneLeft.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
 		gbl_desktopPaneLeft.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		desktopPaneLeft.setLayout(gbl_desktopPaneLeft);
-
-		GridBagConstraints gbc_btnConnexion = new GridBagConstraints();
-		gbc_btnConnexion.anchor = GridBagConstraints.NORTH;
-		gbc_btnConnexion.insets = new Insets(0, 0, 5, 0);
-		gbc_btnConnexion.gridx = 0;
-		gbc_btnConnexion.gridy = 1;
-
-		JButton btnPanier = new JButton("Mon panier");
-		btnPanier.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
-				biblioGUI.panierGUI.show();
-			}
-		});
-		GridBagConstraints gbc_btnPanier = new GridBagConstraints();
-		gbc_btnPanier.anchor = GridBagConstraints.NORTH;
-		gbc_btnPanier.insets = new Insets(0, 0, 5, 0);
-		gbc_btnPanier.gridx = 0;
-		gbc_btnPanier.gridy = 2;
-		desktopPaneLeft.add(btnPanier, gbc_btnPanier);
 
 		JLabel lblFindLivre = new JLabel("Rechercher un livre :");
 		GridBagConstraints gbc_lblFindLivre = new GridBagConstraints();
@@ -197,28 +176,15 @@ public class BiblioGUI {
 		desktopPaneLeft.add(biblioGUI.textField, gbc_textField);
 		biblioGUI.textField.setColumns(10);
 
+		Book books[] = library.getAllBooks();
+		biblioGUI.setBooks(data, tableModel, books);
 		JButton btnFindBook = new JButton("Rechercher");
 		btnFindBook.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				try {
 					Book[] books = library.searchByTitle(biblioGUI.textField.getText());
-					ArrayList<Number> isbns = new ArrayList<>();
-					Vector<Vector<Object>> newData = new Vector<>(books.length);
 
-					for (Book book : books) {
-						if (!isbns.contains(book.getISBN())) {
-							Vector<Object> vectorBook = new Vector<>();
-							vectorBook.addElement(book.getISBN());
-							vectorBook.addElement(book.getTitle());
-							vectorBook.addElement(book.getAuthor());
-							vectorBook.addElement(book.getSummary());
-							vectorBook.addElement(book.getPublisher());
-							vectorBook.addElement("Ajouter au panier");
-							newData.addElement(vectorBook);
-						}
-					}
-					data.removeAllElements();
-					data.addAll(newData);
+					biblioGUI.setBooks(data, tableModel, books);
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace(System.err);
@@ -279,5 +245,27 @@ public class BiblioGUI {
 
 	public void addCloseListener(Consumer<WindowEvent> consumer) {
 		consumers.add(consumer);
+	}
+
+	public void setBooks(Vector<Vector<Object>> data, DefaultTableModel tableModel, Book[] books) {
+		data.removeAllElements();
+
+		Arrays.stream(books).forEach(book -> {
+			try {
+				Vector<Object> vectorBook = new Vector<>();
+				long isbn = book.getISBN();
+				vectorBook.addElement(isbn);
+				vectorBook.addElement(book.getTitle());
+				vectorBook.addElement(book.getAuthor());
+				vectorBook.addElement(book.getPublisher());
+				vectorBook.addElement(new CellValue(library, book));
+				data.addElement(vectorBook);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace(System.err);
+			}
+		});
+
+		tableModel.fireTableDataChanged();
 	}
 }
