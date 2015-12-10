@@ -290,10 +290,13 @@ public class LibraryServer {
 		}
 		out.println("Commands:");
 		out.println(" - " + Command.HELP);
+		out.println(" - " + Command.LOAD);
 		out.println(" - " + Command.ADDBOOK);
 		out.println(" - " + Command.REMOVEBOOK);
+		out.println(" - " + Command.LISTBOOKS);
 		out.println(" - " + Command.ADDUSER);
 		out.println(" - " + Command.REMOVEUSER);
+		out.println(" - " + Command.LISTUSERS);
 		out.println(" - " + Command.ADDPERMISSION);
 		out.println(" - " + Command.REMOVEPERMISSION);
 		out.println(" - " + Command.SAVE);
