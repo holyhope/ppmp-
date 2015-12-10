@@ -49,13 +49,10 @@ public class BorrowButton extends AbstractCellEditor implements TableCellEditor 
 
 	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-		System.out.println("Borrows");
-
 		button.setText("Checking...");
 		this.value = (Long) value;
 
 		try {
-			System.out.println(value);
 			Book book = library.searchByBarCode(this.value);
 			if (library.getBook(book, user)) {
 				System.out.println("book borrowed");

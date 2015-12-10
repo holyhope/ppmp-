@@ -45,6 +45,8 @@ public class BiblioGUI {
 	private final Library						   library;
 	private final User							   user;
 
+	private final Vector<Vector<Object>>		   content	 = new Vector<>();
+
 	private final ArrayList<Consumer<WindowEvent>> consumers = new ArrayList<>();
 
 	/**
@@ -68,18 +70,6 @@ public class BiblioGUI {
 	 * @throws RemoteException
 	 */
 	public static BiblioGUI construct(Library library, User user) throws RemoteException {
-		Vector<Vector<Object>> data = new Vector<>();
-		Vector<Object> headers = new Vector<>();
-		headers.addElement("Isbn");
-		headers.addElement("Title");
-		headers.addElement("Author");
-		headers.addElement("Publisher");
-		headers.addElement("");
-
-		DefaultTableModel tableModel = new DefaultTableModel(data, headers);
-		JTable table = new JTable(tableModel);
-		table.setRowSelectionAllowed(false);
-
 		BiblioGUI biblioGUI = new BiblioGUI(library, user);
 
 		// TODO Error occured here
@@ -143,6 +133,17 @@ public class BiblioGUI {
 
 		BorrowButton borrowButton = BorrowButton.construct(user, library, new JCheckBox());
 
+		Vector<Object> headers = new Vector<>();
+		headers.addElement("Isbn");
+		headers.addElement("Title");
+		headers.addElement("Author");
+		headers.addElement("Publisher");
+		headers.addElement("");
+
+		DefaultTableModel tableModel = new DefaultTableModel(biblioGUI.content, headers);
+		JTable table = new JTable(tableModel);
+		table.setRowSelectionAllowed(false);
+
 		TableColumn columnKart = table.getColumn(headers.lastElement());
 		columnKart.setCellRenderer(BorrowButtonRenderer.construct(library));
 		columnKart.setCellEditor(borrowButton);
@@ -174,14 +175,16 @@ public class BiblioGUI {
 		biblioGUI.textField.setColumns(10);
 
 		Book books[] = library.getAllBooks();
-		biblioGUI.setBooks(data, tableModel, books);
+		biblioGUI.setBooks(books);
+		tableModel.fireTableDataChanged();
 		JButton btnFindBook = new JButton("Rechercher");
 		btnFindBook.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				try {
 					Book[] books = library.searchByTitle(biblioGUI.textField.getText());
 
-					biblioGUI.setBooks(data, tableModel, books);
+					biblioGUI.setBooks(books);
+					tableModel.fireTableDataChanged();
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace(System.err);
@@ -243,8 +246,8 @@ public class BiblioGUI {
 		consumers.add(consumer);
 	}
 
-	public void setBooks(Vector<Vector<Object>> data, DefaultTableModel tableModel, Book[] books) {
-		data.removeAllElements();
+	public void setBooks(Book[] books) {
+		content.removeAllElements();
 
 		Arrays.stream(books).forEach(book -> {
 			try {
@@ -255,13 +258,11 @@ public class BiblioGUI {
 				vectorBook.addElement(book.getAuthor());
 				vectorBook.addElement(book.getPublisher());
 				vectorBook.addElement(book.getBarCode());
-				data.addElement(vectorBook);
+				content.addElement(vectorBook);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace(System.err);
 			}
 		});
-
-		tableModel.fireTableDataChanged();
 	}
 }
