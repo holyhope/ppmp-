@@ -13,7 +13,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.Closeable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -26,7 +25,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -38,10 +36,9 @@ import javax.swing.table.TableColumn;
 
 import fr.mlv.school.Book;
 import fr.mlv.school.Library;
-import fr.mlv.school.Notification;
 import fr.mlv.school.User;
 
-public class BiblioGUI implements Closeable {
+public class BiblioGUI {
 	private final JFrame						   frame	 = new JFrame();
 	private final JTextField					   textField = new JTextField();;
 	private final Library						   library;
@@ -76,26 +73,18 @@ public class BiblioGUI implements Closeable {
 		BiblioGUI biblioGUI = new BiblioGUI(library, user, panierGUI);
 
 		// TODO Error occured here
-		user.addObserver(new Consumer<Notification>() {
-			@Override
-			public void accept(Notification notification) {
-				try {
-					Book book = notification.getBook();
-					int response = JOptionPane.showConfirmDialog(biblioGUI.frame,
-							book.getTitle() + " est disponible.\nVoulez-vous le réserver ?");
-					switch (response) {
-						case JOptionPane.YES_OPTION:
-							library.getBook(book, user);
-						case JOptionPane.NO_OPTION:
-							user.consumeNotification(notification);
-							break;
-					}
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace(System.err);
-				}
-			}
-		});
+		/*
+		 * user.addObserver(new Consumer<Notification>() {
+		 * 
+		 * @Override public void accept(Notification notification) { try { Book
+		 * book = notification.getBook(); int response =
+		 * JOptionPane.showConfirmDialog(biblioGUI.frame, book.getTitle() +
+		 * " est disponible.\nVoulez-vous le réserver ?"); switch (response) {
+		 * case JOptionPane.YES_OPTION: library.getBook(book, user); case
+		 * JOptionPane.NO_OPTION: user.consumeNotification(notification); break;
+		 * } } catch (RemoteException e) { // TODO Auto-generated catch block
+		 * e.printStackTrace(System.err); } } });
+		 */
 
 		int frameWidth = 900;
 		int frameHeight = 600;
@@ -284,7 +273,6 @@ public class BiblioGUI implements Closeable {
 		return biblioGUI;
 	}
 
-	@Override
 	public void close() {
 		frame.dispose();
 	}

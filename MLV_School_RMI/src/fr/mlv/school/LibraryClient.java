@@ -26,7 +26,8 @@ public class LibraryClient {
 			try {
 				ConnexionGUI connexionGUI = ConnexionGUI.construct(library);
 				connexionGUI.addConnectedListener(user -> {
-					try (BiblioGUI biblioGUI = BiblioGUI.construct(library, user)) {
+					try {
+						BiblioGUI biblioGUI = BiblioGUI.construct(library, user);
 						biblioGUI.addCloseListener(event -> {
 							try {
 								library.disconnect(user);
