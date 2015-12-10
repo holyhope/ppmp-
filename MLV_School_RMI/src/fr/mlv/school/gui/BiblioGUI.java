@@ -46,7 +46,6 @@ public class BiblioGUI {
 	private final User							   user;
 
 	private final ArrayList<Consumer<WindowEvent>> consumers = new ArrayList<>();
-	private final PanierGUI						   panierGUI;
 
 	/**
 	 * Create the application.
@@ -58,10 +57,9 @@ public class BiblioGUI {
 	 * 
 	 * @throws RemoteException
 	 */
-	public BiblioGUI(Library library, User user, PanierGUI panierGUI) {
+	private BiblioGUI(Library library, User user) {
 		this.library = library;
 		this.user = user;
-		this.panierGUI = panierGUI;
 	}
 
 	/**
@@ -82,8 +80,7 @@ public class BiblioGUI {
 		JTable table = new JTable(tableModel);
 		table.setRowSelectionAllowed(false);
 
-		PanierGUI panierGUI = PanierGUI.construct(data);
-		BiblioGUI biblioGUI = new BiblioGUI(library, user, panierGUI);
+		BiblioGUI biblioGUI = new BiblioGUI(library, user);
 
 		// TODO Error occured here
 		/*
@@ -147,7 +144,7 @@ public class BiblioGUI {
 		BorrowButton borrowButton = BorrowButton.construct(user, library, new JCheckBox());
 
 		TableColumn columnKart = table.getColumn(headers.lastElement());
-		columnKart.setCellRenderer(new ButtonRenderer());
+		columnKart.setCellRenderer(BorrowButtonRenderer.construct(library));
 		columnKart.setCellEditor(borrowButton);
 		scrollPane.setViewportView(table);
 
@@ -222,7 +219,6 @@ public class BiblioGUI {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
-				biblioGUI.panierGUI.close();
 				biblioGUI.consumers.parallelStream().forEach(consumer -> consumer.accept(e));
 			}
 
@@ -258,7 +254,7 @@ public class BiblioGUI {
 				vectorBook.addElement(book.getTitle());
 				vectorBook.addElement(book.getAuthor());
 				vectorBook.addElement(book.getPublisher());
-				vectorBook.addElement(new CellValue(library, book));
+				vectorBook.addElement(book.getBarCode());
 				data.addElement(vectorBook);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
