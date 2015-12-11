@@ -14,7 +14,7 @@ public class Theme {
 	public final Color secondary  = new Color(217, 84, 2);
 	public final Color background = new Color(40, 40, 40);
 
-	public void applyTo(JTextField textField) {
+	public JTextField applyTo(JTextField textField) {
 		textField.setForeground(primary);
 		textField.setBorder(BorderFactory.createLineBorder(primary.darker(), 1, false));
 		textField.setBackground(background.brighter());
@@ -22,24 +22,28 @@ public class Theme {
 		textField.setSelectedTextColor(primary.brighter());
 		textField.setSelectionColor(secondary.darker());
 		textField.setDisabledTextColor(secondary);
+		return textField;
 	}
 
-	public void applyTo(JButton button) {
+	public JButton applyTo(JButton button) {
 		button.setForeground(primary);
 		button.setOpaque(true);
 		button.setBorder(BorderFactory.createLineBorder(primary.darker(), 1, true));
 		button.setBackground(background.brighter());
+		return button;
 	}
 
-	public void applyTo(JLabel label) {
+	public JLabel applyTo(JLabel label) {
 		label.setForeground(primary);
+		return label;
 	}
 
-	public void applySelectedTo(JLabel label) {
+	public JLabel applySelectedTo(JLabel label) {
 		label.setForeground(secondary);
+		return label;
 	}
 
-	public void applyTo(JTable table) {
+	public JTable applyTo(JTable table) {
 		table.setBackground(background);
 		table.setGridColor(primary.darker());
 		table.setRowHeight(25);
@@ -49,16 +53,21 @@ public class Theme {
 
 		table.getTableHeader().setBackground(background);
 		table.getTableHeader().setBorder(BorderFactory.createLineBorder(primary, 1));
+		return table;
 	}
 
-	public void applyTo(JScrollPane scrollPane) {
+	public JScrollPane applyTo(JScrollPane scrollPane) {
 		scrollPane.setBackground(background);
 		scrollPane.setOpaque(true);
+
+		return scrollPane;
 	}
 
-	public void applySelectedTo(JButton button) {
+	public JButton applySelectedTo(JButton button) {
 		button.setForeground(secondary);
 		button.setBorder(BorderFactory.createLineBorder(secondary.darker(), 1, true));
 		button.setBackground(background.brighter());
+
+		return button;
 	}
 }
