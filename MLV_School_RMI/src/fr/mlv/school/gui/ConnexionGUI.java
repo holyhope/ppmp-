@@ -1,7 +1,8 @@
 package fr.mlv.school.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.Font;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -9,12 +10,14 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.border.BevelBorder;
 
 import fr.mlv.school.Library;
 import fr.mlv.school.User;
@@ -26,20 +29,25 @@ public class ConnexionGUI {
 	private final JPasswordField			passwordField = new JPasswordField();;
 	private final JTextField				loginField	  = new JTextField();
 
+	private final Theme						theme;
+
 	private final ArrayList<Consumer<User>>	consumers	  = new ArrayList<>();
 
 	/**
 	 * Create the application.
 	 */
-	private ConnexionGUI(Library library) {
+	private ConnexionGUI(Theme theme, Library library) {
+		this.theme = theme;
 		this.library = library;
 	}
 
 	/**
 	 * Initialize the contents of the frame.
+	 * 
+	 * @param theme
 	 */
-	public static ConnexionGUI construct(Library library) {
-		ConnexionGUI connexionGUI = new ConnexionGUI(library);
+	public static ConnexionGUI construct(Theme theme, Library library) {
+		ConnexionGUI connexionGUI = new ConnexionGUI(theme, library);
 
 		try {
 			connexionGUI.frame.setTitle("Connexion à " + library.getName());
@@ -47,24 +55,28 @@ public class ConnexionGUI {
 			e.printStackTrace(System.err);
 			connexionGUI.frame.setTitle("Connexion à une biliothèque inconnue");
 		}
-		connexionGUI.frame.setSize(312, 194);
+		connexionGUI.frame.setSize(320, 200);
 		connexionGUI.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		connexionGUI.frame.setLocationRelativeTo(null);
 		connexionGUI.frame.setResizable(false);
 
 		JDesktopPane desktopPane = new JDesktopPane();
-		desktopPane.setBackground(new Color(218, 165, 32));
+		desktopPane.setBackground(theme.background);
 		connexionGUI.frame.getContentPane().add(desktopPane, BorderLayout.CENTER);
 
-		JLabel lblConnexion = new JLabel("Login");
-		lblConnexion.setBounds(18, 22, 61, 16);
+		JLabel lblConnexion = new JLabel("Utilisateur");
+		lblConnexion.setBounds(18, 22, 150, 16);
+		lblConnexion.setFont(new Font(null, Font.BOLD, 18));
+		lblConnexion.setForeground(theme.primary);
 		desktopPane.add(lblConnexion);
 
 		JLabel lblPassWord = new JLabel("Mot de passe");
-		lblPassWord.setBounds(18, 69, 112, 16);
+		lblPassWord.setBounds(18, 69, 150, 16);
+		lblPassWord.setFont(new Font(null, Font.BOLD, 18));
+		lblPassWord.setForeground(theme.primary);
 		desktopPane.add(lblPassWord);
 
-		connexionGUI.passwordField.setBounds(155, 63, 133, 28);
+		connexionGUI.passwordField.setBounds(155, 63, 150, 28);
 		connexionGUI.passwordField.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
@@ -81,9 +93,11 @@ public class ConnexionGUI {
 			public void keyPressed(KeyEvent e) {
 			}
 		});
+		theme.applyTo(connexionGUI.passwordField);
+		connexionGUI.passwordField.setHorizontalAlignment(JTextField.CENTER);
 		desktopPane.add(connexionGUI.passwordField);
 
-		connexionGUI.loginField.setBounds(154, 16, 134, 28);
+		connexionGUI.loginField.setBounds(155, 16, 150, 28);
 		connexionGUI.loginField.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
@@ -100,10 +114,12 @@ public class ConnexionGUI {
 			public void keyPressed(KeyEvent e) {
 			}
 		});
+		theme.applyTo(connexionGUI.loginField);
+		connexionGUI.loginField.setHorizontalAlignment(JTextField.CENTER);
 		desktopPane.add(connexionGUI.loginField);
-		connexionGUI.loginField.setColumns(10);
 
 		JButton btnConnexion = new JButton("Connexion");
+		theme.applyTo(btnConnexion);
 		btnConnexion.addActionListener(e -> connexionGUI.connect());
 		btnConnexion.setBounds(18, 120, 270, 29);
 		desktopPane.add(btnConnexion);

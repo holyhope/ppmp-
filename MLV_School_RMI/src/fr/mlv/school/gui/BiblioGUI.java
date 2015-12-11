@@ -1,38 +1,39 @@
 package fr.mlv.school.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EventObject;
 import java.util.Vector;
 import java.util.function.Consumer;
 
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import javax.swing.event.CellEditorListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 
 import fr.mlv.school.Book;
@@ -41,13 +42,14 @@ import fr.mlv.school.User;
 
 public class BiblioGUI {
 	private final JFrame						   frame	 = new JFrame();
-	private final JTextField					   textField = new JTextField();;
-	private final Library						   library;
-	private final User							   user;
 
 	private final Vector<Vector<Object>>		   content	 = new Vector<>();
 
 	private final ArrayList<Consumer<WindowEvent>> consumers = new ArrayList<>();
+
+	private final Theme							   theme;
+	private final Library						   library;
+	private final User							   user;
 
 	/**
 	 * Create the application.
@@ -59,7 +61,8 @@ public class BiblioGUI {
 	 * 
 	 * @throws RemoteException
 	 */
-	private BiblioGUI(Library library, User user) {
+	private BiblioGUI(Theme theme, Library library, User user) {
+		this.theme = theme;
 		this.library = library;
 		this.user = user;
 	}
@@ -67,10 +70,14 @@ public class BiblioGUI {
 	/**
 	 * Initialize the contents of the frame.
 	 * 
+	 * @param theme
+	 * 
 	 * @throws RemoteException
 	 */
-	public static BiblioGUI construct(Library library, User user) throws RemoteException {
-		BiblioGUI biblioGUI = new BiblioGUI(library, user);
+	public static BiblioGUI construct(Theme theme, Library library, User user) throws RemoteException {
+		BiblioGUI biblioGUI = new BiblioGUI(theme, library, user);
+
+		int headerSize = biblioGUI.getHeaderSize();
 
 		// TODO Error occured here
 		/*
@@ -88,100 +95,109 @@ public class BiblioGUI {
 
 		int frameWidth = 900;
 		int frameHeight = 600;
-		Color myColor = new Color(218, 165, 32);
 
 		// Fenetre principale
-		try {
-			biblioGUI.frame.setTitle(library.getName());
-		} catch (RemoteException e1) {
-			e1.printStackTrace(System.err);
-			biblioGUI.frame.setTitle("Bibliothèque inconnue");
-		}
-		// frame.setSize(frameWidth, frameHeight);
+		biblioGUI.frame.setTitle(library.getName());
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		biblioGUI.frame.setBounds((int) screenSize.getWidth() - frameWidth, 0, frameWidth, frameHeight);
 		biblioGUI.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		biblioGUI.frame.setResizable(false);
 		biblioGUI.frame.setLocationRelativeTo(null);
-
-		// Up
-		JPanel panelTop = new JPanel();
-		biblioGUI.frame.getContentPane().add(panelTop, BorderLayout.NORTH);
-
-		JLabel lblNewLabel = new JLabel(" ");
-		lblNewLabel.setVerticalAlignment(SwingConstants.TOP);
-		ImageIcon imageBiblio = new ImageIcon(
-				new ImageIcon(BiblioGUI.class.getResource("/fr/mlv/school/gui/biblio.jpg")).getImage()
-						.getScaledInstance(biblioGUI.frame.getWidth(), 150, Image.SCALE_DEFAULT));
-		panelTop.setLayout(new GridLayout(0, 1, 0, 300));
-
-		lblNewLabel.setIcon(imageBiblio);
-		panelTop.add(lblNewLabel);
-
-		// Center
-		JSplitPane splitPaneCenter = new JSplitPane();
-		splitPaneCenter.setResizeWeight(0.05);
-		biblioGUI.frame.getContentPane().add(splitPaneCenter, BorderLayout.CENTER);
-
-		JPanel panelRight = new JPanel();
-		splitPaneCenter.setRightComponent(panelRight);
-		panelRight.setLayout(new BoxLayout(panelRight, BoxLayout.X_AXIS));
-
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.getViewport().setBackground(myColor);
-		panelRight.add(scrollPane);
-
-		BorrowButton borrowButton = BorrowButton.construct(user, library, new JCheckBox());
+		biblioGUI.frame.getContentPane().setLayout(null);
+		biblioGUI.frame.setBackground(biblioGUI.theme.background);
 
 		Vector<Object> headers = new Vector<>();
 		headers.addElement("Isbn");
-		headers.addElement("Title");
-		headers.addElement("Author");
-		headers.addElement("Publisher");
-		headers.addElement("");
+		headers.addElement("Titre");
+		headers.addElement("Auteur");
+		headers.addElement("Éditeur");
+		headers.addElement("Emprunt");
+		headers.addElement("Achat");
 
 		DefaultTableModel tableModel = new DefaultTableModel(biblioGUI.content, headers);
-		JTable table = new JTable(tableModel);
-		table.setRowSelectionAllowed(false);
 
-		TableColumn columnKart = table.getColumn(headers.lastElement());
-		columnKart.setCellRenderer(BorrowButtonRenderer.construct(library));
-		columnKart.setCellEditor(borrowButton);
-		scrollPane.setViewportView(table);
+		// Up
 
-		JDesktopPane desktopPaneLeft = new JDesktopPane();
-		desktopPaneLeft.setBackground(new Color(218, 165, 32));
-		splitPaneCenter.setLeftComponent(desktopPaneLeft);
-		GridBagLayout gbl_desktopPaneLeft = new GridBagLayout();
-		gbl_desktopPaneLeft.columnWidths = new int[] { 183, 0 };
-		gbl_desktopPaneLeft.rowHeights = new int[] { 22, 23, 23, 160, 16, 28, 1, 29, 0 };
-		gbl_desktopPaneLeft.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gbl_desktopPaneLeft.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
-		desktopPaneLeft.setLayout(gbl_desktopPaneLeft);
+		JPanel header = new JPanel();
+		header.setLayout(null);
+		header.setBounds(0, 0, frameWidth, headerSize);
+		JLabel headerImage = new JLabel("Test");
+		ImageIcon imageBiblio = new ImageIcon(
+				new ImageIcon(BiblioGUI.class.getResource("/fr/mlv/school/gui/biblio.jpg")).getImage()
+						.getScaledInstance(frameWidth, 150, Image.SCALE_DEFAULT));
+		headerImage.setIcon(imageBiblio);
+		headerImage.setBounds(0, 0, frameWidth, headerSize);
 
-		JLabel lblFindLivre = new JLabel("Rechercher un livre :");
-		GridBagConstraints gbc_lblFindLivre = new GridBagConstraints();
-		gbc_lblFindLivre.fill = GridBagConstraints.VERTICAL;
-		gbc_lblFindLivre.insets = new Insets(0, 0, 5, 0);
-		gbc_lblFindLivre.gridx = 0;
-		gbc_lblFindLivre.gridy = 4;
-		desktopPaneLeft.add(lblFindLivre, gbc_lblFindLivre);
+		JLabel headerLabel = new JLabel(library.getName());
+		headerLabel.setBounds(50, 20, frameWidth - 100, 30);
+		header.add(headerLabel);
 
-		GridBagConstraints gbc_textField = new GridBagConstraints();
-		gbc_textField.insets = new Insets(0, 0, 5, 0);
-		gbc_textField.gridx = 0;
-		gbc_textField.gridy = 5;
-		desktopPaneLeft.add(biblioGUI.textField, gbc_textField);
-		biblioGUI.textField.setColumns(10);
+		@SuppressWarnings("serial")
+		JTextField textField = new JTextField() {
+			@Override
+			protected void paintComponent(final Graphics pG) {
+				super.paintComponent(pG);
 
-		Book books[] = library.getAllBooks();
-		biblioGUI.setBooks(books);
-		tableModel.fireTableDataChanged();
+				if (getText().length() > 0) {
+					return;
+				}
+
+				final Graphics2D g = (Graphics2D) pG;
+				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				g.setColor(getDisabledTextColor());
+				g.drawString("Rechercher un livre...", 1, pG.getFontMetrics().getMaxAscent() + 6);
+			}
+		};
+		textField.setBounds(50, 70, frameWidth - 250, 30);
+		header.add(textField);
+
 		JButton btnFindBook = new JButton("Rechercher");
+		btnFindBook.setBounds(frameWidth - 150, 70, 100, 30);
+		header.add(btnFindBook);
+
+		JPanel headerFilter = new JPanel();
+		headerFilter.setBackground(new Color(biblioGUI.theme.background.getRed(), biblioGUI.theme.background.getGreen(),
+				biblioGUI.theme.background.getBlue(), 160));
+		headerFilter.setBounds(header.getBounds());
+		header.add(headerFilter);
+		header.add(headerImage);
+		biblioGUI.frame.getContentPane().add(header);
+
+		headerLabel.setForeground(biblioGUI.theme.primary);
+		headerLabel.setLabelFor(textField);
+		headerLabel.setFont(new Font(null, Font.BOLD, 30));
+
+		theme.applyTo(textField);
+		textField.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					try {
+						Book[] books = library.searchByTitle(textField.getText());
+
+						biblioGUI.setBooks(books);
+						tableModel.fireTableDataChanged();
+					} catch (RemoteException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+
+		theme.applyTo(btnFindBook);
 		btnFindBook.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				try {
-					Book[] books = library.searchByTitle(biblioGUI.textField.getText());
+					Book[] books = library.searchByTitle(textField.getText());
 
 					biblioGUI.setBooks(books);
 					tableModel.fireTableDataChanged();
@@ -192,17 +208,99 @@ public class BiblioGUI {
 			}
 		});
 
-		GridBagConstraints gbc_btnFindBook = new GridBagConstraints();
-		gbc_btnFindBook.insets = new Insets(0, 0, 5, 0);
-		gbc_btnFindBook.anchor = GridBagConstraints.SOUTH;
-		gbc_btnFindBook.gridx = 0;
-		gbc_btnFindBook.gridy = 6;
-		desktopPaneLeft.add(btnFindBook, gbc_btnFindBook);
+		// Center
+
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(0, headerSize, frameWidth, frameHeight - headerSize);
+		biblioGUI.frame.getContentPane().add(scrollPane);
+		theme.applyTo(scrollPane);
+
+		JTable table = new JTable(tableModel);
+		theme.applyTo(table);
+		table.setRowSelectionAllowed(true);
+		scrollPane.setViewportView(table);
+
+		TableCellEditor nonEditableCellEditor = new TableCellEditor() {
+			@Override
+			public boolean stopCellEditing() {
+				return false;
+			}
+
+			@Override
+			public boolean shouldSelectCell(EventObject anEvent) {
+				return false;
+			}
+
+			@Override
+			public void removeCellEditorListener(CellEditorListener l) {
+			}
+
+			@Override
+			public boolean isCellEditable(EventObject anEvent) {
+				return false;
+			}
+
+			@Override
+			public Object getCellEditorValue() {
+				return null;
+			}
+
+			@Override
+			public void cancelCellEditing() {
+			}
+
+			@Override
+			public void addCellEditorListener(CellEditorListener l) {
+			}
+
+			@Override
+			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+					int column) {
+				return null;
+			}
+		};
+
+		TableColumn isbnColumn = table.getColumn("Isbn");
+		isbnColumn.setPreferredWidth(50);
+		isbnColumn.setCellRenderer(new LabelCellRenderer(theme));
+		isbnColumn.setCellEditor(nonEditableCellEditor);
+		isbnColumn.setHeaderRenderer(new HeaderCellRenderer(theme));
+
+		TableColumn titleColumn = table.getColumn("Titre");
+		titleColumn.setPreferredWidth(200);
+		titleColumn.setCellRenderer(new LabelCellRenderer(theme));
+		titleColumn.setCellEditor(nonEditableCellEditor);
+		titleColumn.setHeaderRenderer(new HeaderCellRenderer(theme));
+
+		TableColumn authorColumn = table.getColumn("Auteur");
+		authorColumn.setPreferredWidth(100);
+		authorColumn.setCellRenderer(new LabelCellRenderer(theme));
+		authorColumn.setCellEditor(nonEditableCellEditor);
+		authorColumn.setHeaderRenderer(new HeaderCellRenderer(theme));
+
+		TableColumn publisherColumn = table.getColumn("Éditeur");
+		publisherColumn.setPreferredWidth(100);
+		publisherColumn.setCellRenderer(new LabelCellRenderer(theme));
+		publisherColumn.setCellEditor(nonEditableCellEditor);
+		publisherColumn.setHeaderRenderer(new HeaderCellRenderer(theme));
+
+		TableColumn columnBorrow = table.getColumn("Emprunt");
+		columnBorrow.setCellRenderer(BorrowButtonRenderer.construct(theme, library));
+		columnBorrow.setCellEditor(BorrowButton.construct(user, library, new JCheckBox()));
+		columnBorrow.setHeaderRenderer(new HeaderCellRenderer(theme));
+		columnBorrow.setPreferredWidth(50);
+
+		TableColumn columnBuy = table.getColumn("Achat");
+		columnBuy.setCellRenderer(BuyButtonRenderer.construct(theme, library));
+		columnBuy.setCellEditor(BuyButton.construct(user, library, new JCheckBox()));
+		columnBuy.setHeaderRenderer(new HeaderCellRenderer(theme));
+		columnBuy.setPreferredWidth(50);
+
+		Book books[] = library.getAllBooks();
+		biblioGUI.setBooks(books);
+		tableModel.fireTableDataChanged();
 
 		// Bottom
-		JPanel panelDown = new JPanel();
-		biblioGUI.frame.getContentPane().add(panelDown, BorderLayout.SOUTH);
-
 		biblioGUI.frame.addWindowListener(new WindowListener() {
 			@Override
 			public void windowOpened(WindowEvent e) {
@@ -233,9 +331,19 @@ public class BiblioGUI {
 			public void windowActivated(WindowEvent e) {
 			}
 		});
+
 		biblioGUI.frame.setVisible(true);
+		textField.grabFocus();
 
 		return biblioGUI;
+	}
+
+	public int getWindowWidth() {
+		return frame.getWidth();
+	}
+
+	public int getHeaderSize() {
+		return 150;
 	}
 
 	public void close() {
@@ -252,12 +360,13 @@ public class BiblioGUI {
 		Arrays.stream(books).forEach(book -> {
 			try {
 				Vector<Object> vectorBook = new Vector<>();
-				long isbn = book.getISBN();
-				vectorBook.addElement(isbn);
+				long barCode = book.getBarCode();
+				vectorBook.addElement(book.getISBN());
 				vectorBook.addElement(book.getTitle());
 				vectorBook.addElement(book.getAuthor());
 				vectorBook.addElement(book.getPublisher());
-				vectorBook.addElement(book.getBarCode());
+				vectorBook.addElement(barCode);
+				vectorBook.addElement(barCode);
 				content.addElement(vectorBook);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block

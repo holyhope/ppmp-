@@ -8,14 +8,15 @@ import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
+import fr.mlv.school.Book;
 import fr.mlv.school.Library;
 
 @SuppressWarnings("serial")
-public class BorrowButtonRenderer extends JButton implements TableCellRenderer {
+public class BuyButtonRenderer extends JButton implements TableCellRenderer {
 	private final Library library;
 	private final Theme	  theme;
 
-	private BorrowButtonRenderer(Theme theme, Library library) {
+	private BuyButtonRenderer(Theme theme, Library library) {
 		this.theme = Objects.requireNonNull(theme);
 		this.library = Objects.requireNonNull(library);
 	}
@@ -30,21 +31,22 @@ public class BorrowButtonRenderer extends JButton implements TableCellRenderer {
 
 		try {
 			Long barCode = Long.parseLong(value.toString());
-			if (library.isBookAvailable(library.searchByBarCode(barCode))) {
-				setText("Emprunter");
+			Book book = library.searchByBarCode(barCode);
+			if (library.isBuyable(book)) {
+				setText(Double.toString(book.getCost()));
 			} else {
-				setText("Indisponible");
+				setText("Pas en vente");
 			}
 		} catch (NumberFormatException | RemoteException e) {
-			setText("Emprunter");
+			setText("Prix inconnu");
 			e.printStackTrace(System.err);
 		}
 
 		return this;
 	}
 
-	public static BorrowButtonRenderer construct(Theme theme, Library library) {
-		BorrowButtonRenderer borrowButtonRenderer = new BorrowButtonRenderer(theme, library);
+	public static BuyButtonRenderer construct(Theme theme, Library library) {
+		BuyButtonRenderer borrowButtonRenderer = new BuyButtonRenderer(theme, library);
 		borrowButtonRenderer.setOpaque(true);
 		return borrowButtonRenderer;
 	}
