@@ -257,7 +257,7 @@ public class BiblioGUI implements WindowListener {
 				return "";
 			}
 		};
-		isbnColumn.setCellRenderer(CellRenderer.construct(theme, bookCard, functionIsbn));
+		isbnColumn.setCellRenderer(CellRenderer.construct(theme, functionIsbn));
 		isbnColumn.setCellEditor(CellEditor.construct(theme, bookCard, functionIsbn));
 		isbnColumn.setHeaderRenderer(new HeaderCellRenderer(theme));
 
@@ -271,8 +271,8 @@ public class BiblioGUI implements WindowListener {
 				return "";
 			}
 		};
-		titleColumn.setCellRenderer(CellRenderer.construct(theme, bookCard, functionTitle));
-		isbnColumn.setCellEditor(CellEditor.construct(theme, bookCard, functionTitle));
+		titleColumn.setCellRenderer(CellRenderer.construct(theme, functionTitle));
+		titleColumn.setCellEditor(CellEditor.construct(theme, bookCard, functionTitle));
 		titleColumn.setHeaderRenderer(new HeaderCellRenderer(theme));
 
 		TableColumn authorColumn = table.getColumn("Auteur");
@@ -285,8 +285,8 @@ public class BiblioGUI implements WindowListener {
 				return "";
 			}
 		};
-		authorColumn.setCellRenderer(CellRenderer.construct(theme, bookCard, functionAuthor));
-		isbnColumn.setCellEditor(CellEditor.construct(theme, bookCard, functionAuthor));
+		authorColumn.setCellRenderer(CellRenderer.construct(theme, functionAuthor));
+		authorColumn.setCellEditor(CellEditor.construct(theme, bookCard, functionAuthor));
 		authorColumn.setHeaderRenderer(new HeaderCellRenderer(theme));
 
 		TableColumn publisherColumn = table.getColumn("Éditeur");
@@ -299,8 +299,8 @@ public class BiblioGUI implements WindowListener {
 				return "";
 			}
 		};
-		publisherColumn.setCellRenderer(CellRenderer.construct(theme, bookCard, functionPublisher));
-		isbnColumn.setCellEditor(CellEditor.construct(theme, bookCard, functionPublisher));
+		publisherColumn.setCellRenderer(CellRenderer.construct(theme, functionPublisher));
+		publisherColumn.setCellEditor(CellEditor.construct(theme, bookCard, functionPublisher));
 		publisherColumn.setHeaderRenderer(new HeaderCellRenderer(theme));
 
 		TableColumn columnBorrow = table.getColumn("Emprunt");
