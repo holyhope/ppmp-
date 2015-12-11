@@ -4,7 +4,9 @@ import java.awt.Color;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -69,5 +71,17 @@ public class Theme {
 		button.setBackground(background.brighter());
 
 		return button;
+	}
+
+	public JFrame applyTo(JFrame frame) {
+		frame.setBackground(background);
+		frame.setForeground(primary);
+		return frame;
+	}
+
+	public JPanel applyTo(JPanel panel) {
+		panel.setBackground(background);
+		panel.setForeground(primary);
+		return panel;
 	}
 }

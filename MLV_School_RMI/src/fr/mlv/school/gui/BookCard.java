@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import fr.mlv.school.Book;
 
@@ -23,25 +24,51 @@ public class BookCard {
 	public static BookCard construct(Theme theme) {
 		BookCard bookCard = new BookCard();
 		bookCard.frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		bookCard.frame.setSize(400, 800);
+		theme.applyTo(bookCard.frame);
+		int frameWidth = 600;
+		int frameHeight = 400;
+		int i = 0;
+		bookCard.frame.setResizable(false);
+		bookCard.frame.setSize(frameWidth, frameHeight);
+		bookCard.frame.setLayout(null);
 
-		bookCard.frame.add(theme.applyTo(new JLabel("ISBN")));
-		bookCard.frame.add(bookCard.isbnLabel);
+		JPanel isbnPanel = theme.applyTo(new JPanel());
+		isbnPanel.setBounds(0, i++ * 30, frameWidth, 30);
+		isbnPanel.add(theme.applyTo(new JLabel("ISBN")));
+		isbnPanel.add(theme.applyTo(bookCard.isbnLabel));
+		bookCard.frame.add(isbnPanel);
 
-		bookCard.frame.add(theme.applyTo(new JLabel("Titre")));
-		bookCard.frame.add(bookCard.titleLabel);
+		JPanel titlePanel = theme.applyTo(new JPanel());
+		titlePanel.setBounds(0, i++ * 30, frameWidth, 30);
+		titlePanel.add(theme.applyTo(new JLabel("Titre")));
+		titlePanel.add(theme.applyTo(bookCard.titleLabel));
+		bookCard.frame.add(titlePanel);
 
-		bookCard.frame.add(theme.applyTo(new JLabel("Auteur")));
-		bookCard.frame.add(bookCard.authorLabel);
+		JPanel authorPanel = theme.applyTo(new JPanel());
+		authorPanel.setBounds(0, i++ * 30, frameWidth, 30);
+		authorPanel.add(theme.applyTo(new JLabel("Auteur")));
+		authorPanel.add(theme.applyTo(bookCard.authorLabel));
+		bookCard.frame.add(authorPanel);
 
-		bookCard.frame.add(theme.applyTo(new JLabel("Éditeur")));
-		bookCard.frame.add(bookCard.publisherLabel);
+		JPanel publisherPanel = theme.applyTo(new JPanel());
+		publisherPanel.setBounds(0, i++ * 30, frameWidth, 30);
+		publisherPanel.add(theme.applyTo(new JLabel("Éditeur")));
+		publisherPanel.add(theme.applyTo(bookCard.publisherLabel));
+		bookCard.frame.add(publisherPanel);
 
-		bookCard.frame.add(theme.applyTo(new JLabel("Prix")));
-		bookCard.frame.add(bookCard.costLabel);
+		JPanel costPanel = theme.applyTo(new JPanel());
+		costPanel.setBounds(0, i++ * 30, frameWidth, 30);
+		costPanel.add(theme.applyTo(new JLabel("Prix")));
+		costPanel.add(theme.applyTo(bookCard.costLabel));
+		bookCard.frame.add(costPanel);
 
-		bookCard.frame.add(theme.applyTo(new JLabel("Résumé")));
-		bookCard.frame.add(bookCard.summaryLabel);
+		JPanel summaryPanel = theme.applyTo(new JPanel());
+		int y = i++ * 30;
+		summaryPanel.setBounds(0, y, frameWidth, frameHeight - y);
+		summaryPanel.add(theme.applyTo(new JLabel("Résumé")));
+		summaryPanel.add(theme.applyTo(bookCard.summaryLabel));
+		bookCard.summaryLabel.setSize(frameWidth, frameHeight - y - 30);
+		bookCard.frame.add(summaryPanel);
 
 		return bookCard;
 	}
@@ -51,8 +78,8 @@ public class BookCard {
 		titleLabel.setText(book.getTitle());
 		authorLabel.setText(book.getAuthor());
 		publisherLabel.setText(book.getPublisher());
-		summaryLabel.setText(book.getAuthor());
-		costLabel.setText(book.getPublisher());
+		summaryLabel.setText("<html>" + book.getSummary() + "</html>");
+		costLabel.setText(Double.toString(book.getCost()));
 		frame.setVisible(true);
 	}
 }
