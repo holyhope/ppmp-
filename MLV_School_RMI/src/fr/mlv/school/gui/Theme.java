@@ -26,6 +26,7 @@ public class Theme {
 
 	public void applyTo(JButton button) {
 		button.setForeground(primary);
+		button.setOpaque(true);
 		button.setBorder(BorderFactory.createLineBorder(primary.darker(), 1, true));
 		button.setBackground(background.brighter());
 	}
