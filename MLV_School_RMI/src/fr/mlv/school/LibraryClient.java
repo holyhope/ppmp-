@@ -8,6 +8,7 @@ import java.rmi.RemoteException;
 
 import fr.mlv.school.gui.BiblioGUI;
 import fr.mlv.school.gui.ConnexionGUI;
+import fr.mlv.school.gui.Theme;
 
 @SuppressWarnings("deprecation")
 public class LibraryClient {
@@ -23,11 +24,13 @@ public class LibraryClient {
 			}
 			Library library = (Library) Naming.lookup(serviceName);
 
+			Theme theme = new Theme();
+
 			try {
-				ConnexionGUI connexionGUI = ConnexionGUI.construct(library);
+				ConnexionGUI connexionGUI = ConnexionGUI.construct(theme, library);
 				connexionGUI.addConnectedListener(user -> {
 					try {
-						BiblioGUI biblioGUI = BiblioGUI.construct(library, user);
+						BiblioGUI biblioGUI = BiblioGUI.construct(theme, library, user);
 						biblioGUI.addCloseListener(event -> {
 							try {
 								library.disconnect(user);

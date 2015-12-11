@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
+import java.util.EventObject;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
@@ -21,35 +22,39 @@ public class BorrowButton extends AbstractCellEditor implements TableCellEditor 
 	private final Library library;
 	private final User	  user;
 
+	private Long		  barCode;
+
 	private BorrowButton(User user, Library library) {
 		this.user = user;
 		this.library = library;
 	}
 
 	public static BorrowButton construct(User user, Library library, JCheckBox checkBox) {
-		BorrowButton addToKartButton = new BorrowButton(user, library);
+		BorrowButton borrowButton = new BorrowButton(user, library);
 
-		addToKartButton.button.setOpaque(true);
-		addToKartButton.button.addActionListener(new ActionListener() {
+		borrowButton.button.setOpaque(true);
+		borrowButton.button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				addToKartButton.fireEditingStopped();
+				borrowButton.fireEditingStopped();
 			}
 		});
 
-		return addToKartButton;
+		return borrowButton;
+	}
+
+	@Override
+	public boolean shouldSelectCell(EventObject anEvent) {
+		return false;
 	}
 
 	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-		System.out.println("Borrows");
-
-		setEnabled(false);
+		button.setText("Checking...");
+		barCode = (Long) value;
 
 		try {
-			System.out.println(value);
-			Book book = library.searchByBarCode((long) value);
+			Book book = library.searchByBarCode(barCode);
 			if (library.getBook(book, user)) {
-				System.out.println("book borrowed");
 				return button;
 			}
 		} catch (RemoteException e) {
@@ -60,12 +65,8 @@ public class BorrowButton extends AbstractCellEditor implements TableCellEditor 
 		return button;
 	}
 
-	public void setEnabled(boolean enabled) {
-		button.setEnabled(enabled);
-	}
-
 	@Override
 	public Object getCellEditorValue() {
-		return null;
+		return barCode;
 	}
 }
