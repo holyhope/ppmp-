@@ -2,7 +2,6 @@ package fr.mlv.school.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
-import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -10,14 +9,12 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.border.BevelBorder;
 
 import fr.mlv.school.Library;
 import fr.mlv.school.User;
@@ -137,6 +134,7 @@ public class ConnexionGUI {
 			try {
 				User user = library.connect(login, pass);
 				consumers.parallelStream().forEach(c -> c.accept(user));
+				close();
 			} catch (IllegalArgumentException e) {
 				System.err.println("Cannot authenticate: " + e.getMessage());
 				wizz();
