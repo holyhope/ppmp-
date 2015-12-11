@@ -1,4 +1,4 @@
-package fr.mlv.school.gui;
+package fr.mlv.school.gui.table;
 
 import java.awt.Component;
 import java.rmi.RemoteException;
@@ -8,7 +8,9 @@ import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
+import fr.mlv.school.Book;
 import fr.mlv.school.Library;
+import fr.mlv.school.gui.Theme;
 
 @SuppressWarnings("serial")
 public class BorrowButtonRenderer extends JButton implements TableCellRenderer {
@@ -29,8 +31,7 @@ public class BorrowButtonRenderer extends JButton implements TableCellRenderer {
 		}
 
 		try {
-			Long barCode = Long.parseLong(value.toString());
-			if (library.isBookAvailable(library.searchByBarCode(barCode))) {
+			if (library.isBookAvailable((Book) value)) {
 				setText("Emprunter");
 			} else {
 				setText("Indisponible");

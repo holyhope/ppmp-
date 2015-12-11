@@ -1,4 +1,4 @@
-package fr.mlv.school.gui;
+package fr.mlv.school.gui.table;
 
 import java.awt.Component;
 import java.awt.Font;
@@ -6,6 +6,8 @@ import java.awt.Font;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
+
+import fr.mlv.school.gui.Theme;
 
 @SuppressWarnings("serial")
 public class HeaderCellRenderer extends JLabel implements TableCellRenderer {

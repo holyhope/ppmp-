@@ -1,7 +1,6 @@
 package fr.mlv.school.gui;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -18,9 +17,9 @@ import java.awt.event.WindowListener;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EventObject;
 import java.util.Vector;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -31,15 +30,18 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.event.CellEditorListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
 
 import fr.mlv.school.Book;
 import fr.mlv.school.Library;
 import fr.mlv.school.User;
+import fr.mlv.school.gui.table.BorrowButton;
+import fr.mlv.school.gui.table.BorrowButtonRenderer;
+import fr.mlv.school.gui.table.BuyButton;
+import fr.mlv.school.gui.table.BuyButtonRenderer;
+import fr.mlv.school.gui.table.CellRenderer;
+import fr.mlv.school.gui.table.HeaderCellRenderer;
 
 public class BiblioGUI implements WindowListener {
 	private final JFrame						   frame	 = new JFrame();
@@ -237,68 +239,62 @@ public class BiblioGUI implements WindowListener {
 		table.setRowSelectionAllowed(true);
 		scrollPane.setViewportView(table);
 
-		TableCellEditor nonEditableCellEditor = new TableCellEditor() {
-			@Override
-			public boolean stopCellEditing() {
-				return false;
-			}
-
-			@Override
-			public boolean shouldSelectCell(EventObject anEvent) {
-				return false;
-			}
-
-			@Override
-			public void removeCellEditorListener(CellEditorListener l) {
-			}
-
-			@Override
-			public boolean isCellEditable(EventObject anEvent) {
-				return false;
-			}
-
-			@Override
-			public Object getCellEditorValue() {
-				return null;
-			}
-
-			@Override
-			public void cancelCellEditing() {
-			}
-
-			@Override
-			public void addCellEditorListener(CellEditorListener l) {
-			}
-
-			@Override
-			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
-					int column) {
-				return null;
-			}
-		};
+		BookCard bookCard = BookCard.construct(theme);
 
 		TableColumn isbnColumn = table.getColumn("Isbn");
 		isbnColumn.setPreferredWidth(50);
-		isbnColumn.setCellRenderer(new LabelCellRenderer(theme));
-		isbnColumn.setCellEditor(nonEditableCellEditor);
+		Function<Book, String> functionIsbn = b -> {
+			try {
+				return Long.toString(b.getISBN());
+			} catch (Exception e) {
+				e.printStackTrace(System.err);
+				return "";
+			}
+		};
+		isbnColumn.setCellRenderer(CellRenderer.construct(theme, bookCard, functionIsbn));
+		isbnColumn.setCellEditor(CellEditor.construct(theme, bookCard, functionIsbn));
 		isbnColumn.setHeaderRenderer(new HeaderCellRenderer(theme));
 
 		TableColumn titleColumn = table.getColumn("Titre");
 		titleColumn.setPreferredWidth(200);
-		titleColumn.setCellRenderer(new LabelCellRenderer(theme));
-		titleColumn.setCellEditor(nonEditableCellEditor);
+		Function<Book, String> functionTitle = b -> {
+			try {
+				return b.getTitle();
+			} catch (Exception e) {
+				e.printStackTrace(System.err);
+				return "";
+			}
+		};
+		titleColumn.setCellRenderer(CellRenderer.construct(theme, bookCard, functionTitle));
+		isbnColumn.setCellEditor(CellEditor.construct(theme, bookCard, functionTitle));
 		titleColumn.setHeaderRenderer(new HeaderCellRenderer(theme));
 
 		TableColumn authorColumn = table.getColumn("Auteur");
 		authorColumn.setPreferredWidth(100);
-		authorColumn.setCellRenderer(new LabelCellRenderer(theme));
-		authorColumn.setCellEditor(nonEditableCellEditor);
+		Function<Book, String> functionAuthor = b -> {
+			try {
+				return b.getAuthor();
+			} catch (Exception e) {
+				e.printStackTrace(System.err);
+				return "";
+			}
+		};
+		authorColumn.setCellRenderer(CellRenderer.construct(theme, bookCard, functionAuthor));
+		isbnColumn.setCellEditor(CellEditor.construct(theme, bookCard, functionAuthor));
 		authorColumn.setHeaderRenderer(new HeaderCellRenderer(theme));
 
 		TableColumn publisherColumn = table.getColumn("Éditeur");
 		publisherColumn.setPreferredWidth(100);
-		publisherColumn.setCellRenderer(new LabelCellRenderer(theme));
-		publisherColumn.setCellEditor(nonEditableCellEditor);
+		Function<Book, String> functionPublisher = b -> {
+			try {
+				return b.getPublisher();
+			} catch (Exception e) {
+				e.printStackTrace(System.err);
+				return "";
+			}
+		};
+		publisherColumn.setCellRenderer(CellRenderer.construct(theme, bookCard, functionPublisher));
+		isbnColumn.setCellEditor(CellEditor.construct(theme, bookCard, functionPublisher));
 		publisherColumn.setHeaderRenderer(new HeaderCellRenderer(theme));
 
 		TableColumn columnBorrow = table.getColumn("Emprunt");
@@ -363,20 +359,14 @@ public class BiblioGUI implements WindowListener {
 		content.removeAllElements();
 
 		Arrays.stream(books).forEach(book -> {
-			try {
-				Vector<Object> vectorBook = new Vector<>();
-				long barCode = book.getBarCode();
-				vectorBook.addElement(book.getISBN());
-				vectorBook.addElement(book.getTitle());
-				vectorBook.addElement(book.getAuthor());
-				vectorBook.addElement(book.getPublisher());
-				vectorBook.addElement(barCode);
-				vectorBook.addElement(barCode);
-				content.addElement(vectorBook);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace(System.err);
-			}
+			Vector<Object> vectorBook = new Vector<>();
+			vectorBook.addElement(book);
+			vectorBook.addElement(book);
+			vectorBook.addElement(book);
+			vectorBook.addElement(book);
+			vectorBook.addElement(book);
+			vectorBook.addElement(book);
+			content.addElement(vectorBook);
 		});
 	}
 }

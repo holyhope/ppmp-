@@ -1,4 +1,4 @@
-package fr.mlv.school.gui;
+package fr.mlv.school.gui.table;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -22,7 +22,7 @@ public class BorrowButton extends AbstractCellEditor implements TableCellEditor 
 	private final Library library;
 	private final User	  user;
 
-	private Long		  barCode;
+	private Book		  book;
 
 	private BorrowButton(User user, Library library) {
 		this.user = user;
@@ -50,10 +50,9 @@ public class BorrowButton extends AbstractCellEditor implements TableCellEditor 
 	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
 		button.setText("Checking...");
-		barCode = (Long) value;
+		book = (Book) value;
 
 		try {
-			Book book = library.searchByBarCode(barCode);
 			if (library.getBook(book, user)) {
 				return button;
 			}
@@ -67,6 +66,6 @@ public class BorrowButton extends AbstractCellEditor implements TableCellEditor 
 
 	@Override
 	public Object getCellEditorValue() {
-		return barCode;
+		return book;
 	}
 }

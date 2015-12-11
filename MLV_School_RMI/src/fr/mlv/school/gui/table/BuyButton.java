@@ -1,4 +1,4 @@
-package fr.mlv.school.gui;
+package fr.mlv.school.gui.table;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -11,6 +11,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
 
+import fr.mlv.school.Book;
 import fr.mlv.school.User;
 
 @SuppressWarnings("serial")
@@ -18,7 +19,7 @@ public class BuyButton extends AbstractCellEditor implements TableCellEditor {
 	private final JButton button = new JButton();
 	private final User	  user;
 
-	private Long		  value;
+	private Book		  book;
 
 	private BuyButton(User user) {
 		this.user = user;
@@ -45,7 +46,7 @@ public class BuyButton extends AbstractCellEditor implements TableCellEditor {
 	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
 		button.setText("Checking...");
-		this.value = (Long) value;
+		book = (Book) value;
 
 		// TODO Buy book
 		System.out.println("todo: buy book");
@@ -59,6 +60,6 @@ public class BuyButton extends AbstractCellEditor implements TableCellEditor {
 
 	@Override
 	public Object getCellEditorValue() {
-		return value;
+		return book;
 	}
 }

@@ -1,4 +1,4 @@
-package fr.mlv.school.gui;
+package fr.mlv.school.gui.table;
 
 import java.awt.Component;
 import java.rmi.RemoteException;
@@ -10,6 +10,7 @@ import javax.swing.table.TableCellRenderer;
 
 import fr.mlv.school.Book;
 import fr.mlv.school.Library;
+import fr.mlv.school.gui.Theme;
 
 @SuppressWarnings("serial")
 public class BuyButtonRenderer extends JButton implements TableCellRenderer {
@@ -30,8 +31,7 @@ public class BuyButtonRenderer extends JButton implements TableCellRenderer {
 		}
 
 		try {
-			Long barCode = Long.parseLong(value.toString());
-			Book book = library.searchByBarCode(barCode);
+			Book book = (Book) value;
 			if (library.isBuyable(book)) {
 				setText(Double.toString(book.getCost()));
 			} else {
