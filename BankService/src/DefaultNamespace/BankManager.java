@@ -30,9 +30,9 @@ public class BankManager {
 			}	
 	}
 	
-	private void addAccount(long id, double balance,String name, String firstname, String currency)
+	private void addAccount(long id, double balance,String firstname, String lastname, String currency)
 	{
-		accounts.put(id,new BankAccount(id,balance,name,firstname,currency));
+		accounts.put(id,new BankAccount(id,balance,firstname,lastname,currency));
 	}
 	
 	private void deleteAccount(long id)
@@ -40,10 +40,10 @@ public class BankManager {
 		accounts.remove(id);
 	}
 	
-	public boolean depositMoney(long id, String name, String firstname, String currency, double amount) throws ServiceException, RemoteException
+	public boolean depositMoney(long id, String firstname, String lastname, String currency, double amount) throws ServiceException, RemoteException
 	{
 		BankAccount current=accounts.get(id);
-		if(current == null || !(current.isValid(id, name, firstname)))
+		if(current == null || !(current.isValid(id, firstname, lastname)))
 		{
 			return false;
 		}
@@ -61,10 +61,10 @@ public class BankManager {
 	}
 	
 	
-	public boolean removeMoney(long id, String name, String firstname, String currency, double amount) throws ServiceException, RemoteException
+	public boolean removeMoney(long id, String firstname, String lastname, String currency, double amount) throws ServiceException, RemoteException
 	{
 		BankAccount current=accounts.get(id);
-		if(current == null || !(current.isValid(id, name, firstname)))
+		if(current == null || !(current.isValid(id, firstname, lastname)))
 		{
 			return false;
 		}

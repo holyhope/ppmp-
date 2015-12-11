@@ -14,6 +14,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,6 +82,7 @@ public class BiblioGUI implements WindowListener {
 	 * 
 	 * @throws RemoteException
 	 */
+
 	public static BiblioGUI construct(Theme theme, Library library, User user) throws RemoteException {
 		BiblioGUI biblioGUI = new BiblioGUI(theme, library, user);
 
@@ -368,5 +374,59 @@ public class BiblioGUI implements WindowListener {
 			vectorBook.addElement(book);
 			content.addElement(vectorBook);
 		});
+	}
+
+	public void callBankServiceDepositeMoney(String idAccount, String firstname, String lastname, String currency,
+			String amount) throws IOException {
+		URL url = new URL("http://localhost:8080/BankService/services/BankManager?method=depositMoney&id=" + idAccount
+				+ "&firstname=" + firstname + "&lastname=" + lastname + "&currency=" + currency + "&amount=" + amount);
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestMethod("GET");
+		connection.connect();
+
+		BufferedReader bufferReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		String str;
+		StringBuffer stringBuffer = new StringBuffer();
+		while ((str = bufferReader.readLine()) != null) {
+			stringBuffer.append(str);
+			stringBuffer.append("\n");
+		}
+		System.out.println(stringBuffer.toString());
+	}
+
+	public void callBankServiceRemoveMoney(String idAccount, String firstname, String lastname, String currency,
+			String amount) throws IOException {
+		URL url = new URL("http://localhost:8080/BankService/services/BankManager?method=removeMoney&id=" + idAccount
+				+ "&firstname=" + firstname + "&lastname=" + lastname + "&currency=" + currency + "&amount=" + amount);
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestMethod("GET");
+		connection.connect();
+
+		BufferedReader bufferReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		String str;
+		StringBuffer stringBuffer = new StringBuffer();
+		while ((str = bufferReader.readLine()) != null) {
+			stringBuffer.append(str);
+			stringBuffer.append("\n");
+		}
+		System.out.println(stringBuffer.toString());
+	}
+
+	public void callBankServicePrintBalance(String idAccount, String currency) throws IOException {
+		URL url = new URL("http://localhost:8080/BankService/services/BankManager?method=printBalance&id=" + idAccount
+				+ "&currency=" + currency);
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestMethod("GET");
+		connection.connect();
+
+		BufferedReader bufferReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		String str;
+		StringBuffer stringBuffer = new StringBuffer();
+
+		while ((str = bufferReader.readLine()) != null) {
+			stringBuffer.append(str);
+			stringBuffer.append("\n");
+		}
+		System.out.println(stringBuffer.toString());
 	}
 }
