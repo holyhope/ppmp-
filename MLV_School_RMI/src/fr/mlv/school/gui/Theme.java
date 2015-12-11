@@ -43,8 +43,11 @@ public class Theme {
 		table.setGridColor(primary.darker());
 		table.setRowHeight(25);
 		table.setForeground(primary);
+		table.setFocusable(false);
+		table.setFillsViewportHeight(true);
 
 		table.getTableHeader().setBackground(background);
+		table.getTableHeader().setBorder(BorderFactory.createLineBorder(primary, 1));
 	}
 
 	public void applyTo(JScrollPane scrollPane) {

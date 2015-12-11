@@ -11,33 +11,30 @@ import javax.swing.JCheckBox;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
 
-import fr.mlv.school.Library;
 import fr.mlv.school.User;
 
 @SuppressWarnings("serial")
 public class BuyButton extends AbstractCellEditor implements TableCellEditor {
 	private final JButton button = new JButton();
-	private final Library library;
 	private final User	  user;
 
 	private Long		  value;
 
-	private BuyButton(User user, Library library) {
+	private BuyButton(User user) {
 		this.user = user;
-		this.library = library;
 	}
 
-	public static BuyButton construct(User user, Library library, JCheckBox checkBox) {
-		BuyButton borrowButton = new BuyButton(user, library);
+	public static BuyButton construct(User user, JCheckBox checkBox) {
+		BuyButton buyButton = new BuyButton(user);
 
-		borrowButton.button.setOpaque(true);
-		borrowButton.button.addActionListener(new ActionListener() {
+		buyButton.button.setOpaque(true);
+		buyButton.button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				borrowButton.fireEditingStopped();
+				buyButton.fireEditingStopped();
 			}
 		});
 
-		return borrowButton;
+		return buyButton;
 	}
 
 	@Override

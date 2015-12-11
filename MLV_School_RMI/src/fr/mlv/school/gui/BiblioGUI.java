@@ -35,12 +35,13 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 
 import fr.mlv.school.Book;
 import fr.mlv.school.Library;
 import fr.mlv.school.User;
 
-public class BiblioGUI {
+public class BiblioGUI implements WindowListener {
 	private final JFrame						   frame	 = new JFrame();
 
 	private final Vector<Vector<Object>>		   content	 = new Vector<>();
@@ -76,8 +77,6 @@ public class BiblioGUI {
 	 */
 	public static BiblioGUI construct(Theme theme, Library library, User user) throws RemoteException {
 		BiblioGUI biblioGUI = new BiblioGUI(theme, library, user);
-
-		int headerSize = biblioGUI.getHeaderSize();
 
 		// TODO Error occured here
 		/*
@@ -116,10 +115,26 @@ public class BiblioGUI {
 
 		DefaultTableModel tableModel = new DefaultTableModel(biblioGUI.content, headers);
 
-		// Up
+		biblioGUI.defineHeader(tableModel);
 
+		biblioGUI.defineTable(tableModel);
+
+		Book books[] = library.getAllBooks();
+		biblioGUI.setBooks(books);
+		tableModel.fireTableDataChanged();
+
+		biblioGUI.frame.addWindowListener(biblioGUI);
+
+		biblioGUI.frame.setVisible(true);
+
+		return biblioGUI;
+	}
+
+	private void defineHeader(DefaultTableModel tableModel) throws RemoteException {
 		JPanel header = new JPanel();
 		header.setLayout(null);
+		int frameWidth = frame.getWidth();
+		int headerSize = getHeaderSize();
 		header.setBounds(0, 0, frameWidth, headerSize);
 		JLabel headerImage = new JLabel("Test");
 		ImageIcon imageBiblio = new ImageIcon(
@@ -156,14 +171,14 @@ public class BiblioGUI {
 		header.add(btnFindBook);
 
 		JPanel headerFilter = new JPanel();
-		headerFilter.setBackground(new Color(biblioGUI.theme.background.getRed(), biblioGUI.theme.background.getGreen(),
-				biblioGUI.theme.background.getBlue(), 160));
+		headerFilter.setBackground(
+				new Color(theme.background.getRed(), theme.background.getGreen(), theme.background.getBlue(), 160));
 		headerFilter.setBounds(header.getBounds());
 		header.add(headerFilter);
 		header.add(headerImage);
-		biblioGUI.frame.getContentPane().add(header);
+		frame.getContentPane().add(header);
 
-		headerLabel.setForeground(biblioGUI.theme.primary);
+		headerLabel.setForeground(theme.primary);
 		headerLabel.setLabelFor(textField);
 		headerLabel.setFont(new Font(null, Font.BOLD, 30));
 
@@ -183,7 +198,7 @@ public class BiblioGUI {
 					try {
 						Book[] books = library.searchByTitle(textField.getText());
 
-						biblioGUI.setBooks(books);
+						setBooks(books);
 						tableModel.fireTableDataChanged();
 					} catch (RemoteException e1) {
 						// TODO Auto-generated catch block
@@ -199,7 +214,7 @@ public class BiblioGUI {
 				try {
 					Book[] books = library.searchByTitle(textField.getText());
 
-					biblioGUI.setBooks(books);
+					setBooks(books);
 					tableModel.fireTableDataChanged();
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
@@ -208,11 +223,13 @@ public class BiblioGUI {
 			}
 		});
 
-		// Center
+		textField.grabFocus();
+	}
 
+	private void defineTable(DefaultTableModel tableModel) {
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(0, headerSize, frameWidth, frameHeight - headerSize);
-		biblioGUI.frame.getContentPane().add(scrollPane);
+		scrollPane.setBounds(0, getHeaderSize(), frame.getWidth(), frame.getHeight() - getHeaderSize());
+		frame.getContentPane().add(scrollPane);
 		theme.applyTo(scrollPane);
 
 		JTable table = new JTable(tableModel);
@@ -292,50 +309,38 @@ public class BiblioGUI {
 
 		TableColumn columnBuy = table.getColumn("Achat");
 		columnBuy.setCellRenderer(BuyButtonRenderer.construct(theme, library));
-		columnBuy.setCellEditor(BuyButton.construct(user, library, new JCheckBox()));
+		columnBuy.setCellEditor(BuyButton.construct(user, new JCheckBox()));
 		columnBuy.setHeaderRenderer(new HeaderCellRenderer(theme));
 		columnBuy.setPreferredWidth(50);
+	}
 
-		Book books[] = library.getAllBooks();
-		biblioGUI.setBooks(books);
-		tableModel.fireTableDataChanged();
+	@Override
+	public void windowOpened(WindowEvent e) {
+	}
 
-		// Bottom
-		biblioGUI.frame.addWindowListener(new WindowListener() {
-			@Override
-			public void windowOpened(WindowEvent e) {
-			}
+	@Override
+	public void windowIconified(WindowEvent e) {
+	}
 
-			@Override
-			public void windowIconified(WindowEvent e) {
-			}
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+	}
 
-			@Override
-			public void windowDeiconified(WindowEvent e) {
-			}
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+	}
 
-			@Override
-			public void windowDeactivated(WindowEvent e) {
-			}
+	@Override
+	public void windowClosing(WindowEvent e) {
+		consumers.parallelStream().forEach(consumer -> consumer.accept(e));
+	}
 
-			@Override
-			public void windowClosing(WindowEvent e) {
-				biblioGUI.consumers.parallelStream().forEach(consumer -> consumer.accept(e));
-			}
+	@Override
+	public void windowClosed(WindowEvent e) {
+	}
 
-			@Override
-			public void windowClosed(WindowEvent e) {
-			}
-
-			@Override
-			public void windowActivated(WindowEvent e) {
-			}
-		});
-
-		biblioGUI.frame.setVisible(true);
-		textField.grabFocus();
-
-		return biblioGUI;
+	@Override
+	public void windowActivated(WindowEvent e) {
 	}
 
 	public int getWindowWidth() {
