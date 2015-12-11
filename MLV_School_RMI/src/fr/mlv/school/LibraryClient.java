@@ -30,6 +30,7 @@ public class LibraryClient {
 				ConnexionGUI connexionGUI = ConnexionGUI.construct(theme, library);
 				connexionGUI.addConnectedListener(user -> {
 					try {
+						connexionGUI.close();
 						BiblioGUI biblioGUI = BiblioGUI.construct(theme, library, user);
 						biblioGUI.addCloseListener(event -> {
 							try {
