@@ -13,6 +13,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,10 +40,13 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import javax.xml.namespace.QName;
+import javax.xml.ws.Service;
 
 import fr.mlv.school.Book;
 import fr.mlv.school.Library;
 import fr.mlv.school.User;
+
 
 public class BiblioGUI {
 	private final JFrame						   frame	 = new JFrame();
@@ -82,7 +91,7 @@ public class BiblioGUI {
 		JTable table = new JTable(tableModel);
 		table.setRowSelectionAllowed(false);
 
-		PanierGUI panierGUI = PanierGUI.construct(data);
+		PanierGUI panierGUI = PanierGUI.construct();
 		BiblioGUI biblioGUI = new BiblioGUI(library, user, panierGUI);
 
 		// TODO Error occured here
@@ -125,7 +134,7 @@ public class BiblioGUI {
 		lblNewLabel.setVerticalAlignment(SwingConstants.TOP);
 		ImageIcon imageBiblio = new ImageIcon(
 				new ImageIcon(BiblioGUI.class.getResource("/fr/mlv/school/gui/biblio.jpg")).getImage()
-						.getScaledInstance(biblioGUI.frame.getWidth(), 150, Image.SCALE_DEFAULT));
+				.getScaledInstance(biblioGUI.frame.getWidth(), 150, Image.SCALE_DEFAULT));
 		panelTop.setLayout(new GridLayout(0, 1, 0, 300));
 
 		lblNewLabel.setIcon(imageBiblio);
@@ -267,5 +276,56 @@ public class BiblioGUI {
 		});
 
 		tableModel.fireTableDataChanged();
+	}
+
+	public void callBankServiceDepositeMoney(String idAccount,String firstname,String lastname,String currency,String amount) throws IOException{
+		URL url = new URL("http://localhost:8080/BankService/services/BankManager?method=depositMoney&id="+idAccount+
+				"&firstname="+firstname+"&lastname="+lastname+"&currency="+currency+"&amount="+amount);
+		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+		connection.setRequestMethod("GET");
+		connection.connect();
+		
+		BufferedReader bufferReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		String str;
+		StringBuffer stringBuffer = new StringBuffer();
+		while ((str = bufferReader.readLine()) != null) {
+			stringBuffer.append(str);
+			stringBuffer.append("\n");
+		}
+		System.out.println(stringBuffer.toString());
+	}
+	
+	public void callBankServiceRemoveMoney(String idAccount,String firstname,String lastname,String currency,String amount) throws IOException{
+		URL url = new URL("http://localhost:8080/BankService/services/BankManager?method=removeMoney&id="+idAccount+
+				"&firstname="+firstname+"&lastname="+lastname+"&currency="+currency+"&amount="+amount);
+		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+		connection.setRequestMethod("GET");
+		connection.connect();
+		
+		BufferedReader bufferReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		String str;
+		StringBuffer stringBuffer = new StringBuffer();
+		while ((str = bufferReader.readLine()) != null) {
+			stringBuffer.append(str);
+			stringBuffer.append("\n");
+		}
+		System.out.println(stringBuffer.toString());
+	}
+	
+	public void callBankServicePrintBalance(String idAccount,String currency) throws IOException{
+		URL url = new URL("http://localhost:8080/BankService/services/BankManager?method=printBalance&id="+idAccount+"&currency="+currency);
+		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+		connection.setRequestMethod("GET");
+		connection.connect();
+		
+		BufferedReader bufferReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		String str;
+		StringBuffer stringBuffer = new StringBuffer();
+		
+		while ((str = bufferReader.readLine()) != null) {
+			stringBuffer.append(str);
+			stringBuffer.append("\n");
+		}
+		System.out.println(stringBuffer.toString());
 	}
 }
