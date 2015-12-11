@@ -4,42 +4,6 @@
 Built on Apr 22, 2006 (06:55:48 PDT)-->
  <wsdl:types>
   <schema elementFormDefault="qualified" targetNamespace="http://DefaultNamespace" xmlns="http://www.w3.org/2001/XMLSchema">
-   <element name="depositMoney">
-    <complexType>
-     <sequence>
-      <element name="id" type="xsd:long"/>
-      <element name="name" type="xsd:string"/>
-      <element name="firstname" type="xsd:string"/>
-      <element name="currency" type="xsd:string"/>
-      <element name="amount" type="xsd:double"/>
-     </sequence>
-    </complexType>
-   </element>
-   <element name="depositMoneyResponse">
-    <complexType>
-     <sequence>
-      <element name="depositMoneyReturn" type="xsd:boolean"/>
-     </sequence>
-    </complexType>
-   </element>
-   <element name="removeMoney">
-    <complexType>
-     <sequence>
-      <element name="id" type="xsd:long"/>
-      <element name="name" type="xsd:string"/>
-      <element name="firstname" type="xsd:string"/>
-      <element name="currency" type="xsd:string"/>
-      <element name="amount" type="xsd:double"/>
-     </sequence>
-    </complexType>
-   </element>
-   <element name="removeMoneyResponse">
-    <complexType>
-     <sequence>
-      <element name="removeMoneyReturn" type="xsd:boolean"/>
-     </sequence>
-    </complexType>
-   </element>
    <element name="printBalance">
     <complexType>
      <sequence>
@@ -52,6 +16,42 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
     <complexType>
      <sequence>
       <element name="printBalanceReturn" type="xsd:double"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="removeMoney">
+    <complexType>
+     <sequence>
+      <element name="id" type="xsd:long"/>
+      <element name="firstname" type="xsd:string"/>
+      <element name="lastname" type="xsd:string"/>
+      <element name="currency" type="xsd:string"/>
+      <element name="amount" type="xsd:double"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="removeMoneyResponse">
+    <complexType>
+     <sequence>
+      <element name="removeMoneyReturn" type="xsd:boolean"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="depositMoney">
+    <complexType>
+     <sequence>
+      <element name="id" type="xsd:long"/>
+      <element name="firstname" type="xsd:string"/>
+      <element name="lastname" type="xsd:string"/>
+      <element name="currency" type="xsd:string"/>
+      <element name="amount" type="xsd:double"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="depositMoneyResponse">
+    <complexType>
+     <sequence>
+      <element name="depositMoneyReturn" type="xsd:boolean"/>
      </sequence>
     </complexType>
    </element>
@@ -108,13 +108,13 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
    <wsdl:portType name="BankManager">
 
-      <wsdl:operation name="depositMoney">
+      <wsdl:operation name="printBalance">
 
-         <wsdl:input message="impl:depositMoneyRequest" name="depositMoneyRequest">
+         <wsdl:input message="impl:printBalanceRequest" name="printBalanceRequest">
 
        </wsdl:input>
 
-         <wsdl:output message="impl:depositMoneyResponse" name="depositMoneyResponse">
+         <wsdl:output message="impl:printBalanceResponse" name="printBalanceResponse">
 
        </wsdl:output>
 
@@ -132,13 +132,13 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
       </wsdl:operation>
 
-      <wsdl:operation name="printBalance">
+      <wsdl:operation name="depositMoney">
 
-         <wsdl:input message="impl:printBalanceRequest" name="printBalanceRequest">
+         <wsdl:input message="impl:depositMoneyRequest" name="depositMoneyRequest">
 
        </wsdl:input>
 
-         <wsdl:output message="impl:printBalanceResponse" name="printBalanceResponse">
+         <wsdl:output message="impl:depositMoneyResponse" name="depositMoneyResponse">
 
        </wsdl:output>
 
@@ -150,17 +150,17 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
       <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
 
-      <wsdl:operation name="depositMoney">
+      <wsdl:operation name="printBalance">
 
          <wsdlsoap:operation soapAction=""/>
 
-         <wsdl:input name="depositMoneyRequest">
+         <wsdl:input name="printBalanceRequest">
 
             <wsdlsoap:body use="literal"/>
 
          </wsdl:input>
 
-         <wsdl:output name="depositMoneyResponse">
+         <wsdl:output name="printBalanceResponse">
 
             <wsdlsoap:body use="literal"/>
 
@@ -186,17 +186,17 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
       </wsdl:operation>
 
-      <wsdl:operation name="printBalance">
+      <wsdl:operation name="depositMoney">
 
          <wsdlsoap:operation soapAction=""/>
 
-         <wsdl:input name="printBalanceRequest">
+         <wsdl:input name="depositMoneyRequest">
 
             <wsdlsoap:body use="literal"/>
 
          </wsdl:input>
 
-         <wsdl:output name="printBalanceResponse">
+         <wsdl:output name="depositMoneyResponse">
 
             <wsdlsoap:body use="literal"/>
 

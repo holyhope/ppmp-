@@ -23,24 +23,24 @@
  <ns1:handler name="Authenticate" type="java:org.apache.axis.handlers.SimpleAuthenticationHandler"/>
  <ns1:handler name="LocalResponder" type="java:org.apache.axis.transport.local.LocalResponder"/>
  <ns1:service name="BankManager" provider="java:RPC" style="wrapped" use="literal">
- <parameter name="scope" value="application"/>
-  <ns2:operation name="depositMoney" qname="ns1:depositMoney" returnQName="ns1:depositMoneyReturn" returnType="xsd:boolean" soapAction="" xmlns:ns1="http://DefaultNamespace" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://xml.apache.org/axis/wsdd/">
+ <parameter name="scope" value="application" />
+  <ns2:operation name="printBalance" qname="ns1:printBalance" returnQName="ns1:printBalanceReturn" returnType="xsd:double" soapAction="" xmlns:ns1="http://DefaultNamespace" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://xml.apache.org/axis/wsdd/">
    <ns2:parameter qname="ns1:id" type="xsd:long"/>
-   <ns2:parameter qname="ns1:name" type="xsd:string"/>
-   <ns2:parameter qname="ns1:firstname" type="xsd:string"/>
    <ns2:parameter qname="ns1:currency" type="xsd:string"/>
-   <ns2:parameter qname="ns1:amount" type="xsd:double"/>
   </ns2:operation>
   <ns1:operation name="removeMoney" qname="ns2:removeMoney" returnQName="ns2:removeMoneyReturn" returnType="xsd:boolean" soapAction="" xmlns:ns2="http://DefaultNamespace" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
    <ns1:parameter qname="ns2:id" type="xsd:long"/>
-   <ns1:parameter qname="ns2:name" type="xsd:string"/>
    <ns1:parameter qname="ns2:firstname" type="xsd:string"/>
+   <ns1:parameter qname="ns2:lastname" type="xsd:string"/>
    <ns1:parameter qname="ns2:currency" type="xsd:string"/>
    <ns1:parameter qname="ns2:amount" type="xsd:double"/>
   </ns1:operation>
-  <ns1:operation name="printBalance" qname="ns3:printBalance" returnQName="ns3:printBalanceReturn" returnType="xsd:double" soapAction="" xmlns:ns3="http://DefaultNamespace" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ns1:operation name="depositMoney" qname="ns3:depositMoney" returnQName="ns3:depositMoneyReturn" returnType="xsd:boolean" soapAction="" xmlns:ns3="http://DefaultNamespace" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
    <ns1:parameter qname="ns3:id" type="xsd:long"/>
+   <ns1:parameter qname="ns3:firstname" type="xsd:string"/>
+   <ns1:parameter qname="ns3:lastname" type="xsd:string"/>
    <ns1:parameter qname="ns3:currency" type="xsd:string"/>
+   <ns1:parameter qname="ns3:amount" type="xsd:double"/>
   </ns1:operation>
   <ns1:parameter name="allowedMethods" value="depositMoney removeMoney printBalance"/>
   <ns1:parameter name="typeMappingVersion" value="1.2"/>
@@ -50,7 +50,6 @@
   <ns1:parameter name="schemaQualified" value="http://DefaultNamespace"/>
   <ns1:parameter name="wsdlTargetNamespace" value="http://DefaultNamespace"/>
   <ns1:parameter name="wsdlServiceElement" value="BankManagerService"/>
-  <ns1:parameter name="scope" value="application"/>
  </ns1:service>
  <ns1:service name="AdminService" provider="java:MSG">
   <ns1:parameter name="allowedMethods" value="AdminService"/>
