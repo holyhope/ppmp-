@@ -5,6 +5,8 @@ import java.rmi.RemoteException;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 
 import fr.mlv.school.Book;
 
@@ -63,12 +65,18 @@ public class BookCard {
 		bookCard.frame.add(costPanel);
 
 		JPanel summaryPanel = theme.applyTo(new JPanel());
-		int y = i++ * 30;
-		summaryPanel.setBounds(0, y, frameWidth, frameHeight - y);
+		summaryPanel.setBounds(0, i++ * 30, frameWidth, 30);
 		summaryPanel.add(theme.applyTo(new JLabel("Résumé")));
-		summaryPanel.add(theme.applyTo(bookCard.summaryLabel));
-		bookCard.summaryLabel.setSize(frameWidth, frameHeight - y - 30);
 		bookCard.frame.add(summaryPanel);
+
+		int y = i++ * 30;
+		bookCard.summaryLabel.setBounds(0, y, frameWidth, frameHeight - y);
+		bookCard.summaryLabel.setBackground(theme.background);
+		bookCard.summaryLabel.setOpaque(true);
+		bookCard.summaryLabel.setVerticalAlignment(JLabel.TOP);
+		bookCard.summaryLabel
+				.setBorder(new CompoundBorder(bookCard.summaryLabel.getBorder(), new EmptyBorder(10, 10, 10, 10)));
+		bookCard.frame.add(theme.applyTo(bookCard.summaryLabel));
 
 		return bookCard;
 	}
